@@ -1,6 +1,6 @@
-function Panel({ title, onClose, children }) {
+function Panel({ title, onClose, children, hidden = false }) {
   return (
-    <section className="panel">
+    <section className={`panel ${hidden ? "panel-hidden" : ""}`}>
       <div className="panel-header">
         <span>{title}</span>
 

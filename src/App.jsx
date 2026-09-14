@@ -1,9 +1,41 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import Panel from "./components/layout/Panel";
 import CodeEditor from "./components/editors/CodeEditor";
 import Preview from "./components/Preview/Preview";
+import ConsolePanel from "./components/console/ConsolePanel";
 function App() {
+  const [consoleMessages, setConsoleMessages] = useState([]);
+  const [runId, setRunId] = useState(0);
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event.data?.source !== "librepen-preview") {
+        return;
+      }
+
+      setConsoleMessages((currentMessages) => [
+        ...currentMessages,
+        {
+          type: event.data.type,
+          text: event.data.args.join(" "),
+        },
+      ]);
+    };
+
+    window.addEventListener("message", handleMessage);
+
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
+  }, []);
+  const clearConsole = () => {
+    setConsoleMessages([]);
+  };
+  const runCode = () => {
+    setConsoleMessages([]);
+    setRunningCode({ ...code });
+    setRunId((currentId) => currentId + 1);
+  };
   const [visiblePanels, setVisiblePanels] = useState({
     html: true,
     css: true,
@@ -19,6 +51,7 @@ function App() {
 }`,
     javascript: `console.log("Hello LibrePen!");`,
   });
+  const [runningCode, setRunningCode] = useState(code);
 
   const togglePanel = (panelName) => {
     setVisiblePanels((currentPanels) => ({
@@ -39,6 +72,8 @@ function App() {
         <h1>LibrePen</h1>
 
         <div className="topbar-actions">
+          <button onClick={runCode}>Run ▶</button>
+
           <button onClick={() => togglePanel("html")}>HTML</button>
           <button onClick={() => togglePanel("css")}>CSS</button>
           <button onClick={() => togglePanel("javascript")}>JavaScript</button>
@@ -78,19 +113,22 @@ function App() {
           </Panel>
         )}
 
-        {visiblePanels.preview && (
-          <Panel title="Preview" onClose={() => togglePanel("preview")}>
-            <Preview
-              html={code.html}
-              css={code.css}
-              javascript={code.javascript}
-            />
-          </Panel>
-        )}
+        <Panel
+          title="Preview"
+          onClose={() => togglePanel("preview")}
+          hidden={!visiblePanels.preview}
+        >
+          <Preview
+            html={runningCode.html}
+            css={runningCode.css}
+            javascript={runningCode.javascript}
+            runId={runId}
+          />
+        </Panel>
 
         {visiblePanels.console && (
           <Panel title="Console" onClose={() => togglePanel("console")}>
-            <p>Console output will go here.</p>
+            <ConsolePanel messages={consoleMessages} onClear={clearConsole} />
           </Panel>
         )}
       </main>
