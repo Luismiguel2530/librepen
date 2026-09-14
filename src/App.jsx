@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./App.css";
 import Panel from "./components/layout/Panel";
+import CodeEditor from "./components/editors/CodeEditor";
 
 function App() {
   const [visiblePanels, setVisiblePanels] = useState({
@@ -11,10 +12,24 @@ function App() {
     console: false,
   });
 
+  const [code, setCode] = useState({
+    html: "<h1>Hello LibrePen!</h1>",
+    css: `body {
+  font-family: sans-serif;
+}`,
+    javascript: `console.log("Hello LibrePen!");`,
+  });
+
   const togglePanel = (panelName) => {
     setVisiblePanels((currentPanels) => ({
       ...currentPanels,
       [panelName]: !currentPanels[panelName],
+    }));
+  };
+  const updateCode = (language, value) => {
+    setCode((currentCode) => ({
+      ...currentCode,
+      [language]: value,
     }));
   };
 
@@ -35,19 +50,31 @@ function App() {
       <main className="workspace">
         {visiblePanels.html && (
           <Panel title="HTML" onClose={() => togglePanel("html")}>
-            <p>HTML editor will go here.</p>
+            <CodeEditor
+              language="html"
+              value={code.html}
+              onChange={(value) => updateCode("html", value)}
+            />
           </Panel>
         )}
 
         {visiblePanels.css && (
           <Panel title="CSS" onClose={() => togglePanel("css")}>
-            <p>CSS editor will go here.</p>
+            <CodeEditor
+              language="css"
+              value={code.css}
+              onChange={(value) => updateCode("css", value)}
+            />
           </Panel>
         )}
 
         {visiblePanels.javascript && (
           <Panel title="JavaScript" onClose={() => togglePanel("javascript")}>
-            <p>JavaScript editor will go here.</p>
+            <CodeEditor
+              language="javascript"
+              value={code.javascript}
+              onChange={(value) => updateCode("javascript", value)}
+            />
           </Panel>
         )}
 
