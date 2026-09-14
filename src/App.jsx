@@ -2,7 +2,7 @@ import { useState } from "react";
 import "./App.css";
 import Panel from "./components/layout/Panel";
 import CodeEditor from "./components/editors/CodeEditor";
-
+import Preview from "./components/Preview/Preview";
 function App() {
   const [visiblePanels, setVisiblePanels] = useState({
     html: true,
@@ -80,7 +80,11 @@ function App() {
 
         {visiblePanels.preview && (
           <Panel title="Preview" onClose={() => togglePanel("preview")}>
-            <p>Preview will go here.</p>
+            <Preview
+              html={code.html}
+              css={code.css}
+              javascript={code.javascript}
+            />
           </Panel>
         )}
 
