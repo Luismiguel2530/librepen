@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./App.css";
+import Panel from "./components/layout/Panel";
 
 function App() {
   const [visiblePanels, setVisiblePanels] = useState({
@@ -33,68 +34,33 @@ function App() {
 
       <main className="workspace">
         {visiblePanels.html && (
-          <section className="panel">
-            <div className="panel-header">
-              <span>HTML</span>
-              <button onClick={() => togglePanel("html")}>×</button>
-            </div>
-
-            <div className="panel-content">
-              <p>HTML editor will go here.</p>
-            </div>
-          </section>
+          <Panel title="HTML" onClose={() => togglePanel("html")}>
+            <p>HTML editor will go here.</p>
+          </Panel>
         )}
 
         {visiblePanels.css && (
-          <section className="panel">
-            <div className="panel-header">
-              <span>CSS</span>
-              <button onClick={() => togglePanel("css")}>×</button>
-            </div>
-
-            <div className="panel-content">
-              <p>CSS editor will go here.</p>
-            </div>
-          </section>
+          <Panel title="CSS" onClose={() => togglePanel("css")}>
+            <p>CSS editor will go here.</p>
+          </Panel>
         )}
 
         {visiblePanels.javascript && (
-          <section className="panel">
-            <div className="panel-header">
-              <span>JavaScript</span>
-              <button onClick={() => togglePanel("javascript")}>×</button>
-            </div>
-
-            <div className="panel-content">
-              <p>JavaScript editor will go here.</p>
-            </div>
-          </section>
+          <Panel title="JavaScript" onClose={() => togglePanel("javascript")}>
+            <p>JavaScript editor will go here.</p>
+          </Panel>
         )}
 
         {visiblePanels.preview && (
-          <section className="panel">
-            <div className="panel-header">
-              <span>Preview</span>
-              <button onClick={() => togglePanel("preview")}>×</button>
-            </div>
-
-            <div className="panel-content">
-              <p>Preview will go here.</p>
-            </div>
-          </section>
+          <Panel title="Preview" onClose={() => togglePanel("preview")}>
+            <p>Preview will go here.</p>
+          </Panel>
         )}
 
         {visiblePanels.console && (
-          <section className="panel">
-            <div className="panel-header">
-              <span>Console</span>
-              <button onClick={() => togglePanel("console")}>×</button>
-            </div>
-
-            <div className="panel-content">
-              <p>Console output will go here.</p>
-            </div>
-          </section>
+          <Panel title="Console" onClose={() => togglePanel("console")}>
+            <p>Console output will go here.</p>
+          </Panel>
         )}
       </main>
     </div>
