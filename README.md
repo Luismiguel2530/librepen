@@ -1,16 +1,73 @@
-# React + Vite
+# LibrePen
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A simple, open-source browser playground for HTML, CSS and JavaScript. No account required.
 
-Currently, two official plugins are available:
+LibrePen is a lightweight front-end code playground that lets you write, run, and experiment with HTML, CSS, and JavaScript directly in your browser.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## ✨ Features
 
-## React Compiler
+- HTML, CSS, and JavaScript editing
+- Monaco Editor
+- Syntax highlighting
+- Integrated JavaScript console
+- Browser preview
+- Manual Run control
+- Resizable workspace panels
+- Show and hide individual panels
+- Editor content preserved when panels are closed
+- No account required
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🛠️ Tech Stack
 
-## Expanding the ESLint configuration
+- React
+- Vite
+- JavaScript
+- Monaco Editor
+- react-resizable-panels
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🚀 Getting Started
+
+Clone the repository:
+
+```bash
+git clone https://github.com/Luismiguel2530/librepen
+cd librepen
+
+Install dependencies:
+
+npm install
+
+Start the development server:
+
+npm run dev
+
+Then open the local URL shown by Vite in your browser.
+
+🗺️ Roadmap
+
+LibrePen is still under active development.
+
+Planned features include:
+
+Local autosave
+Multiple projects
+New/reset project
+Export projects
+Keyboard shortcuts
+Formatting tools
+Themes and editor settings
+Shareable projects
+Improved workspace customization
+
+Advanced panel drag-and-drop/docking is planned for a future version.
+
+🤝 Contributing
+
+LibrePen is open source and contributions, suggestions, and bug reports are welcome.
+
+If you find an issue or have an idea for a feature, feel free to open a GitHub Issue.
+
+📄 License
+
+License information will be added as the project develops.
+```
