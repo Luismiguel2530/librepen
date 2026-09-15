@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
+    "emmet-monaco-es": "^5.7.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-resizable-panels": "^4.12.4"
