@@ -21,6 +21,12 @@ const DEFAULT_CODE = {
   javascript: `console.log("Hello LibrePen!");`,
 };
 
+const EMPTY_CODE = {
+  html: "",
+  css: "",
+  javascript: "",
+};
+
 function App() {
   const previewPanelRef = useRef(null);
 
@@ -32,8 +38,6 @@ function App() {
     console: false,
   });
 
-  // Load previously saved code when LibrePen starts.
-  // If nothing has been saved yet, use the default starter code.
   const [code, setCode] = useState(() => {
     return loadCode() || DEFAULT_CODE;
   });
@@ -109,12 +113,29 @@ function App() {
     setRunId((currentId) => currentId + 1);
   };
 
+  const createNewProject = () => {
+    const confirmed = window.confirm(
+      "Start a new project? Your current code will be cleared.",
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setCode({ ...EMPTY_CODE });
+    setRunningCode({ ...EMPTY_CODE });
+    setConsoleMessages([]);
+    setRunId((currentId) => currentId + 1);
+  };
+
   return (
     <div className="app">
       <header className="topbar">
         <h1>LibrePen</h1>
 
         <div className="topbar-actions">
+          <button onClick={createNewProject}>New</button>
+
           <button onClick={runCode}>Run ▶</button>
 
           <button onClick={() => togglePanel("html")}>HTML</button>
