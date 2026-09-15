@@ -2,125 +2,564 @@
   box-sizing: border-box;
 }
 
+:root {
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  color: #f8fafc;
+  background: #0f172a;
+}
+
 body {
   margin: 0;
 }
 
-button {
+button,
+select {
   font: inherit;
+}
+
+button {
+  user-select: none;
 }
 
 .app {
   min-height: 100vh;
-  background: #111827;
-  color: #f9fafb;
+  background: #0f172a;
+  color: #f8fafc;
 }
 
+/* =========================
+   Topbar
+   ========================= */
+
 .topbar {
-  height: 60px;
+  height: 58px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
+  gap: 20px;
+  padding: 0 16px;
   background: #0b1120;
-  border-bottom: 1px solid #273244;
+  border-bottom: 1px solid #253044;
 }
 
-.topbar h1 {
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.brand-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.brand h1 {
   margin: 0;
-  font-size: 20px;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
 }
 
 .topbar-actions {
+  min-width: 0;
   display: flex;
+  align-items: center;
+  justify-content: flex-end;
   gap: 8px;
 }
 
-.topbar-actions button,
-.panel-header button {
-  border: none;
-  background: #1f2937;
-  color: #f9fafb;
+.toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.toolbar-divider {
+  width: 1px;
+  height: 24px;
+  margin: 0 5px;
+  flex-shrink: 0;
+  background: #273449;
+}
+
+/* =========================
+   Project controls
+   ========================= */
+
+.project-select {
+  height: 36px;
+  width: 170px;
+  padding: 0 30px 0 10px;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  outline: none;
+  background: #111827;
+  color: #e5e7eb;
   cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.project-select:hover {
+  border-color: #475569;
+  background: #151e2e;
+}
+
+.project-select:focus-visible {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgb(59 130 246 / 18%);
+}
+
+.toolbar-button,
+.icon-button {
+  height: 36px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: #aebaca;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.toolbar-button:hover,
+.icon-button:hover,
+.icon-button-active {
+  background: #182235;
+  border-color: #29374c;
+  color: #ffffff;
+}
+
+.toolbar-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+}
+
+.new-button-icon {
+  position: relative;
+  top: -1px;
+  font-size: 19px;
+  line-height: 1;
+  color: #93c5fd;
+}
+
+.icon-button {
+  width: 36px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+
+/* Project dropdown */
+
+.project-menu-wrapper {
+  position: relative;
+}
+
+.project-menu {
+  position: absolute;
+  z-index: 1000;
+  top: calc(100% + 7px);
+  right: 0;
+  width: 190px;
+  padding: 5px;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  background: #111827;
+  box-shadow:
+    0 12px 30px rgb(0 0 0 / 35%),
+    0 2px 8px rgb(0 0 0 / 25%);
+}
+
+.project-menu button {
+  width: 100%;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 9px;
+  border: 0;
   border-radius: 5px;
+  background: transparent;
+  color: #d5dbe5;
+  text-align: left;
+  cursor: pointer;
 }
 
-.topbar-actions button {
-  padding: 7px 12px;
+.project-menu button:hover {
+  background: #1e293b;
+  color: #ffffff;
 }
 
-.topbar-actions button:hover,
-.panel-header button:hover {
-  background: #374151;
+.project-menu-separator {
+  height: 1px;
+  margin: 4px 5px;
+  background: #293548;
 }
+
+.project-menu .project-menu-delete {
+  color: #fca5a5;
+}
+
+.project-menu .project-menu-delete:hover {
+  background: rgb(127 29 29 / 22%);
+  color: #fecaca;
+}
+
+/* =========================
+   View controls
+   ========================= */
+
+.view-button {
+  position: relative;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 9px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  background: transparent;
+  color: #8f9bad;
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.view-button:hover {
+  background: #151f30;
+  color: #e2e8f0;
+}
+
+.view-button-active {
+  color: #f1f5f9;
+  background: #121d2e;
+}
+
+.view-button-active::after {
+  content: "";
+  position: absolute;
+  left: 9px;
+  right: 9px;
+  bottom: 1px;
+  height: 2px;
+  border-radius: 999px;
+  background: #60a5fa;
+}
+
+.view-icon,
+.view-svg-icon {
+  min-width: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #7f8da2;
+  font-family: Consolas, Monaco, monospace;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.view-button-active .view-icon,
+.view-button-active .view-svg-icon {
+  color: #93c5fd;
+}
+
+.language-toggle-html.view-button-active::after {
+  background: #d97757;
+}
+
+.language-toggle-html.view-button-active .view-icon {
+  color: #e58a6b;
+}
+
+.language-toggle-css.view-button-active::after {
+  background: #4f9acb;
+}
+
+.language-toggle-css.view-button-active .view-icon {
+  color: #6eb0da;
+}
+
+.language-toggle-js.view-button-active::after {
+  background: #c5aa45;
+}
+
+.language-toggle-js.view-button-active .view-icon {
+  color: #d6bd5a;
+}
+
+.view-icon-js {
+  font-size: 11px;
+}
+
+.console-icon {
+  font-size: 12px;
+}
+
+/* =========================
+   Run
+   ========================= */
+
+.run-button {
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 15px;
+  border: 1px solid #3b82f6;
+  border-radius: 7px;
+  background: #2563eb;
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgb(37 99 235 / 20%);
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.08s ease;
+}
+
+.run-button:hover {
+  background: #347cf0;
+  border-color: #60a5fa;
+  box-shadow: 0 4px 14px rgb(37 99 235 / 30%);
+}
+
+.run-button:active {
+  transform: translateY(1px);
+}
+
+/* Accessible keyboard focus */
+
+.toolbar-button:focus-visible,
+.icon-button:focus-visible,
+.view-button:focus-visible,
+.run-button:focus-visible,
+.panel-header button:focus-visible,
+.console-toolbar button:focus-visible {
+  outline: 2px solid #60a5fa;
+  outline-offset: 2px;
+}
+
+/* =========================
+   Workspace
+   ========================= */
 
 .workspace {
-  height: calc(100vh - 60px);
-  background: #374151;
+  height: calc(100vh - 58px);
+  background: #0f172a;
 }
 
 .panel-group {
   height: 100%;
 }
 
+/* =========================
+   Resize handles
+   ========================= */
+
 .resize-handle {
+  position: relative;
   width: 5px;
-  background: #273244;
+  flex-shrink: 0;
+  background: #222e40;
   cursor: col-resize;
-  transition: background 0.15s ease;
+  transition: background-color 0.15s ease;
 }
 
-.resize-handle:hover {
-  background: #64748b;
+.resize-handle::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 1px;
+  width: 3px;
+  background: transparent;
+  transition: background-color 0.15s ease;
 }
+
+.resize-handle:hover,
+.resize-handle[data-resize-handle-active] {
+  background: #29394f;
+}
+
+.resize-handle:hover::after,
+.resize-handle[data-resize-handle-active]::after {
+  background: #3b82f6;
+}
+
+/* =========================
+   Panels
+   ========================= */
+
 .panel {
+  position: relative;
   height: 100%;
   min-height: 300px;
-  background: #111827;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  background: #111827;
+}
+
+/* Thin language identity line */
+
+.panel::before {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #334155;
+}
+
+.panel-html::before {
+  background: #c96f50;
+}
+
+.panel-css::before {
+  background: #438ab8;
+}
+
+.panel-javascript::before {
+  background: #b99e3e;
+}
+
+.panel-console::before {
+  background: #64748b;
+}
+
+.panel-preview::before {
+  background: #3b82f6;
 }
 
 .panel-header {
-  height: 40px;
-  padding: 0 12px;
+  height: 42px;
+  flex-shrink: 0;
+  padding: 2px 8px 0 11px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #182131;
-  border-bottom: 1px solid #273244;
-  font-size: 14px;
-  font-weight: 600;
+  background: #151f30;
+  border-bottom: 1px solid #263246;
+  color: #dfe6ef;
+  font-size: 13px;
+  font-weight: 650;
 }
 
-.panel-header button {
+.panel-title {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.panel-language-icon {
+  min-width: 19px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #8290a4;
+  font-family: Consolas, Monaco, monospace;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.panel-html .panel-language-icon {
+  color: #df8060;
+}
+
+.panel-css .panel-language-icon {
+  color: #60a5d2;
+}
+
+.panel-javascript .panel-language-icon {
+  color: #cfb54f;
+}
+
+.panel-preview .panel-language-icon {
+  color: #6ba6f8;
+}
+
+.panel-close-button {
   width: 28px;
   height: 28px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  background: transparent;
+  color: #758398;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.panel-close-button:hover {
+  background: #202d40;
+  border-color: #2d3b50;
+  color: #ffffff;
 }
 
 .panel-content {
   flex: 1;
   min-height: 0;
   overflow: hidden;
-  color: #9ca3af;
+  color: #94a3b8;
 }
 
 .panel-content > p {
   padding: 16px;
 }
+
+/* =========================
+   Preview
+   ========================= */
+
 .preview-frame {
+  display: block;
   width: 100%;
   height: 100%;
-  border: none;
-  background: white;
+  border: 0;
+  background: #ffffff;
 }
+
+/* =========================
+   Console
+   ========================= */
+
 .console-panel {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: #111827;
-  font-family: Consolas, Monaco, monospace;
+  background: #0f172a;
+  font-family: "JetBrains Mono", "Fira Code", Consolas, Monaco, monospace;
   font-size: 13px;
 }
 
@@ -128,36 +567,38 @@ button {
   display: flex;
   justify-content: flex-end;
   padding: 6px 8px;
-  border-bottom: 1px solid #273244;
+  background: #111827;
+  border-bottom: 1px solid #263244;
 }
 
 .console-toolbar button {
-  border: none;
-  border-radius: 4px;
-  padding: 4px 10px;
-  background: #1f2937;
-  color: #f9fafb;
+  border: 1px solid #334155;
+  border-radius: 5px;
+  padding: 5px 10px;
+  background: #182235;
+  color: #dce3ec;
   cursor: pointer;
 }
 
 .console-toolbar button:hover {
-  background: #374151;
+  background: #223047;
+  border-color: #475569;
 }
 
 .console-output {
   flex: 1;
   overflow-y: auto;
-  padding: 8px;
+  padding: 10px;
 }
 
 .console-empty {
-  color: #6b7280;
+  color: #64748b;
 }
 
 .console-message {
   display: flex;
   gap: 8px;
-  padding: 4px 0;
+  padding: 5px 0;
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -178,23 +619,206 @@ button {
 .console-error {
   color: #f87171;
 }
+
 .panel-hidden {
   display: none;
 }
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+
+/* =========================
+   Smaller desktop widths
+   ========================= */
+
+@media (max-width: 1250px) {
+  .topbar {
+    padding: 0 10px;
+    gap: 10px;
+  }
+
+  .topbar-actions {
+    gap: 4px;
+  }
+
+  .toolbar-divider {
+    margin: 0 2px;
+  }
+
+  .project-select {
+    width: 140px;
+  }
+
+  .view-button {
+    padding: 0 7px;
+  }
+
+  .view-button span:last-child {
+    display: none;
+  }
+
+  .view-button {
+    width: 34px;
+    justify-content: center;
+  }
+}
+/* =========================
+   Compact toolbar polish
+   ========================= */
+
+.topbar {
+  height: 52px;
+  padding: 0 14px;
+}
+
+.workspace {
+  height: calc(100vh - 52px);
 }
 
 .brand-icon {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-  border-radius: 8px;
-  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
 }
 
 .brand h1 {
-  margin: 0;
+  font-size: 17px;
+}
+
+.topbar-actions {
+  gap: 4px;
+}
+
+.toolbar-group {
+  gap: 2px;
+}
+
+.toolbar-divider {
+  height: 20px;
+  margin: 0 4px;
+}
+
+.project-select {
+  height: 32px;
+  width: 160px;
+  font-size: 13px;
+  padding-left: 9px;
+}
+
+.toolbar-button,
+.icon-button {
+  height: 32px;
+  font-size: 13px;
+}
+
+.toolbar-button {
+  padding: 0 8px;
+}
+
+.icon-button {
+  width: 32px;
+}
+
+.view-button {
+  height: 32px;
+  gap: 5px;
+  padding: 0 7px;
+  font-size: 13px;
+}
+
+.view-icon,
+.view-svg-icon {
+  min-width: 16px;
+  font-size: 10px;
+}
+
+.view-icon-js {
+  font-size: 9px;
+}
+
+.console-icon {
+  font-size: 10px;
+}
+
+.view-button-active::after {
+  left: 7px;
+  right: 7px;
+}
+
+.run-button {
+  height: 34px;
+  padding: 0 13px;
+  gap: 6px;
+  font-size: 13px;
+
+  /* Softer LibrePen blue */
+  background: #3b82f6;
+  border-color: #4f8ff7;
+  box-shadow: 0 2px 8px rgb(59 130 246 / 15%);
+}
+
+.run-button:hover {
+  background: #4b8df8;
+  border-color: #60a5fa;
+  box-shadow: 0 3px 10px rgb(59 130 246 / 22%);
+}
+/* =========================
+   LibrePen UI final polish
+   ========================= */
+
+/* More breathing room between project actions and view tabs */
+.project-controls {
+  margin-right: 8px;
+}
+
+.toolbar-divider {
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+/* Compact project dropdown menu */
+.project-menu {
+  width: 172px;
+  padding: 4px;
+  border-radius: 7px;
+}
+
+.project-menu button {
+  height: 32px;
+  gap: 7px;
+  padding: 0 8px;
+  font-size: 12px;
+}
+
+.project-menu button svg {
+  width: 14px;
+  height: 14px;
+}
+
+.project-menu-separator {
+  margin: 4px 6px;
+}
+
+/* Destructive action stays identifiable without dominating */
+.project-menu .project-menu-delete {
+  color: #fca5a5;
+}
+
+.project-menu .project-menu-delete:hover {
+  background: rgb(127 29 29 / 20%);
+  color: #fecaca;
+}
+
+/* Deeper primary blue inspired by Atlassian's UI */
+.run-button {
+  background: #0c66e4;
+  border-color: #0c66e4;
+  box-shadow: 0 2px 6px rgb(12 102 228 / 18%);
+}
+
+.run-button:hover {
+  background: #0055cc;
+  border-color: #0055cc;
+  box-shadow: 0 3px 8px rgb(12 102 228 / 22%);
+}
+
+.run-button:active {
+  background: #09326c;
+  border-color: #09326c;
 }

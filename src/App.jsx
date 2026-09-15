@@ -20,8 +20,98 @@ import {
   Separator,
 } from "react-resizable-panels";
 
+function MoreIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      aria-hidden="true"
+      fill="currentColor"
+    >
+      <circle cx="5" cy="12" r="1.7" />
+      <circle cx="12" cy="12" r="1.7" />
+      <circle cx="19" cy="12" r="1.7" />
+    </svg>
+  );
+}
+
+function EditIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      aria-hidden="true"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z" />
+    </svg>
+  );
+}
+
+function DeleteIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      aria-hidden="true"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M3 6h18" />
+      <path d="M8 6V4h8v2" />
+      <path d="M19 6l-1 14H6L5 6" />
+      <path d="M10 11v5M14 11v5" />
+    </svg>
+  );
+}
+
+function EyeIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      aria-hidden="true"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+    >
+      <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
+      <circle cx="12" cy="12" r="2.5" />
+    </svg>
+  );
+}
+
+function PlayIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="17"
+      height="17"
+      aria-hidden="true"
+      fill="currentColor"
+    >
+      <path d="M8 5v14l11-7Z" />
+    </svg>
+  );
+}
+
 function App() {
   const previewPanelRef = useRef(null);
+  const projectMenuRef = useRef(null);
+
+  const [projectMenuOpen, setProjectMenuOpen] = useState(false);
 
   const [visiblePanels, setVisiblePanels] = useState({
     html: true,
@@ -31,12 +121,10 @@ function App() {
     console: false,
   });
 
-  // Load all saved projects once when LibrePen starts.
   const [projects, setProjects] = useState(() => {
     return loadProjects();
   });
 
-  // Restore the project that was open during the previous session.
   const [activeProjectId, setActiveProjectId] = useState(() => {
     const savedProjects = loadProjects();
     const savedActiveProjectId = loadActiveProjectId();
@@ -65,19 +153,16 @@ function App() {
   const [consoleMessages, setConsoleMessages] = useState([]);
   const [runId, setRunId] = useState(0);
 
-  // Save the complete project collection whenever it changes.
   useEffect(() => {
     saveProjects(projects);
   }, [projects]);
 
-  // Remember which project is currently open.
   useEffect(() => {
     if (activeProjectId) {
       saveActiveProjectId(activeProjectId);
     }
   }, [activeProjectId]);
 
-  // Listen for console messages coming from the Preview iframe.
   useEffect(() => {
     const handleMessage = (event) => {
       if (event.data?.source !== "librepen-preview") {
@@ -100,7 +185,6 @@ function App() {
     };
   }, []);
 
-  // Collapse or expand Preview without destroying its iframe.
   useEffect(() => {
     const previewPanel = previewPanelRef.current;
 
@@ -108,12 +192,55 @@ function App() {
       return;
     }
 
-    if (visiblePanels.preview) {
-      previewPanel.expand();
-    } else {
-      previewPanel.collapse();
-    }
-  }, [visiblePanels.preview]);
+    const syncPreviewState = () => {
+      if (visiblePanels.preview) {
+        previewPanel.expand();
+      } else {
+        previewPanel.collapse();
+      }
+    };
+
+    // Sync once immediately.
+    syncPreviewState();
+
+    // Sync again after the panel group finishes recalculating its layout.
+    const animationFrame = requestAnimationFrame(syncPreviewState);
+
+    return () => {
+      cancelAnimationFrame(animationFrame);
+    };
+  }, [
+    visiblePanels.preview,
+    visiblePanels.html,
+    visiblePanels.css,
+    visiblePanels.javascript,
+    visiblePanels.console,
+  ]);
+
+  useEffect(() => {
+    const handlePointerDown = (event) => {
+      if (
+        projectMenuRef.current &&
+        !projectMenuRef.current.contains(event.target)
+      ) {
+        setProjectMenuOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setProjectMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   const togglePanel = (panelName) => {
     setVisiblePanels((currentPanels) => ({
@@ -177,11 +304,9 @@ function App() {
     }
 
     const cleanName = projectName.trim() || "Untitled Project";
-
     const newProject = createProject(cleanName);
 
     setProjects((currentProjects) => [...currentProjects, newProject]);
-
     setActiveProjectId(newProject.id);
 
     setRunningCode({
@@ -195,6 +320,8 @@ function App() {
   };
 
   const renameProject = () => {
+    setProjectMenuOpen(false);
+
     if (!activeProject) {
       return;
     }
@@ -227,6 +354,8 @@ function App() {
   };
 
   const deleteProject = () => {
+    setProjectMenuOpen(false);
+
     if (!activeProject) {
       return;
     }
@@ -243,7 +372,6 @@ function App() {
       (project) => project.id !== activeProjectId,
     );
 
-    // LibrePen should always have at least one project.
     if (remainingProjects.length === 0) {
       const replacementProject = createProject("Untitled Project");
 
@@ -277,6 +405,9 @@ function App() {
     setRunId((currentId) => currentId + 1);
   };
 
+  const panelButtonClass = (panelName) =>
+    `view-button ${visiblePanels[panelName] ? "view-button-active" : ""}`;
+
   return (
     <div className="app">
       <header className="topbar">
@@ -286,41 +417,156 @@ function App() {
         </div>
 
         <div className="topbar-actions">
-          <select
-            value={activeProjectId}
-            onChange={(event) => switchProject(event.target.value)}
-            aria-label="Select project"
+          <div className="toolbar-group project-controls">
+            <select
+              className="project-select"
+              value={activeProjectId}
+              onChange={(event) => switchProject(event.target.value)}
+              aria-label="Select project"
+              title="Select project"
+            >
+              {projects.map((project) => (
+                <option key={project.id} value={project.id}>
+                  {project.name}
+                </option>
+              ))}
+            </select>
+
+            <button
+              type="button"
+              className="toolbar-button new-button"
+              onClick={createNewProject}
+              title="Create a new project"
+            >
+              <span className="new-button-icon" aria-hidden="true">
+                +
+              </span>
+              <span>New</span>
+            </button>
+
+            <div className="project-menu-wrapper" ref={projectMenuRef}>
+              <button
+                type="button"
+                className={`icon-button ${
+                  projectMenuOpen ? "icon-button-active" : ""
+                }`}
+                onClick={() =>
+                  setProjectMenuOpen((currentValue) => !currentValue)
+                }
+                aria-label="Project options"
+                aria-expanded={projectMenuOpen}
+                title="Project options"
+              >
+                <MoreIcon />
+              </button>
+
+              {projectMenuOpen && (
+                <div className="project-menu">
+                  <button type="button" onClick={renameProject}>
+                    <EditIcon />
+                    <span>Rename project</span>
+                  </button>
+
+                  <div className="project-menu-separator" />
+
+                  <button
+                    type="button"
+                    className="project-menu-delete"
+                    onClick={deleteProject}
+                  >
+                    <DeleteIcon />
+                    <span>Delete project</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="toolbar-divider" />
+
+          <div className="toolbar-group view-controls">
+            <button
+              type="button"
+              className={`${panelButtonClass("html")} language-toggle-html`}
+              aria-pressed={visiblePanels.html}
+              onClick={() => togglePanel("html")}
+              title="Show/hide HTML editor"
+            >
+              <span className="view-icon" aria-hidden="true">
+                &lt;&gt;
+              </span>
+              <span>HTML</span>
+            </button>
+
+            <button
+              type="button"
+              className={`${panelButtonClass("css")} language-toggle-css`}
+              aria-pressed={visiblePanels.css}
+              onClick={() => togglePanel("css")}
+              title="Show/hide CSS editor"
+            >
+              <span className="view-icon" aria-hidden="true">
+                #
+              </span>
+              <span>CSS</span>
+            </button>
+
+            <button
+              type="button"
+              className={`${panelButtonClass("javascript")} language-toggle-js`}
+              aria-pressed={visiblePanels.javascript}
+              onClick={() => togglePanel("javascript")}
+              title="Show/hide JavaScript editor"
+            >
+              <span className="view-icon view-icon-js" aria-hidden="true">
+                JS
+              </span>
+              <span>JavaScript</span>
+            </button>
+
+            <button
+              type="button"
+              className={panelButtonClass("console")}
+              aria-pressed={visiblePanels.console}
+              onClick={() => togglePanel("console")}
+              title="Show/hide Console"
+            >
+              <span className="view-icon console-icon" aria-hidden="true">
+                &gt;_
+              </span>
+              <span>Console</span>
+            </button>
+
+            <button
+              type="button"
+              className={panelButtonClass("preview")}
+              aria-pressed={visiblePanels.preview}
+              onClick={() => togglePanel("preview")}
+              title="Show/hide Preview"
+            >
+              <span className="view-svg-icon">
+                <EyeIcon />
+              </span>
+              <span>Preview</span>
+            </button>
+          </div>
+
+          <div className="toolbar-divider" />
+
+          <button
+            type="button"
+            className="run-button"
+            onClick={runCode}
+            title="Run project"
           >
-            {projects.map((project) => (
-              <option key={project.id} value={project.id}>
-                {project.name}
-              </option>
-            ))}
-          </select>
-
-          <button onClick={createNewProject}>New</button>
-
-          <button onClick={renameProject}>Rename</button>
-
-          <button onClick={deleteProject}>Delete</button>
-
-          <button onClick={runCode}>Run ▶</button>
-
-          <button onClick={() => togglePanel("html")}>HTML</button>
-
-          <button onClick={() => togglePanel("css")}>CSS</button>
-
-          <button onClick={() => togglePanel("javascript")}>JavaScript</button>
-
-          <button onClick={() => togglePanel("preview")}>Preview</button>
-
-          <button onClick={() => togglePanel("console")}>Console</button>
+            <PlayIcon />
+            <span>Run</span>
+          </button>
         </div>
       </header>
 
       <main className="workspace">
         <Group orientation="horizontal" className="panel-group">
-          {/* HTML */}
           {visiblePanels.html && (
             <>
               <ResizablePanel minSize="15%">
@@ -337,7 +583,6 @@ function App() {
             </>
           )}
 
-          {/* CSS */}
           {visiblePanels.css && (
             <>
               <ResizablePanel minSize="15%">
@@ -354,30 +599,40 @@ function App() {
             </>
           )}
 
-          {/* JavaScript */}
           {visiblePanels.javascript && (
-            <ResizablePanel minSize="15%">
-              <Panel
-                title="JavaScript"
-                onClose={() => togglePanel("javascript")}
-              >
-                <CodeEditor
-                  language="javascript"
-                  value={code.javascript}
-                  onChange={(value) => updateCode("javascript", value)}
-                />
-              </Panel>
-            </ResizablePanel>
+            <>
+              <ResizablePanel minSize="15%">
+                <Panel
+                  title="JavaScript"
+                  onClose={() => togglePanel("javascript")}
+                >
+                  <CodeEditor
+                    language="javascript"
+                    value={code.javascript}
+                    onChange={(value) => updateCode("javascript", value)}
+                  />
+                </Panel>
+              </ResizablePanel>
+
+              <Separator className="resize-handle" />
+            </>
           )}
 
-          {/* Separator before Preview */}
-          <Separator
-            className={`resize-handle ${
-              !visiblePanels.preview ? "resize-handle-hidden" : ""
-            }`}
-          />
+          {visiblePanels.console && (
+            <>
+              <ResizablePanel minSize="15%">
+                <Panel title="Console" onClose={() => togglePanel("console")}>
+                  <ConsolePanel
+                    messages={consoleMessages}
+                    onClear={clearConsole}
+                  />
+                </Panel>
+              </ResizablePanel>
 
-          {/* Preview remains mounted */}
+              <Separator className="resize-handle" />
+            </>
+          )}
+
           <ResizablePanel
             minSize="15%"
             collapsible
@@ -395,22 +650,6 @@ function App() {
               />
             </Panel>
           </ResizablePanel>
-
-          {/* Console */}
-          {visiblePanels.console && (
-            <>
-              <Separator className="resize-handle" />
-
-              <ResizablePanel minSize="15%">
-                <Panel title="Console" onClose={() => togglePanel("console")}>
-                  <ConsolePanel
-                    messages={consoleMessages}
-                    onClear={clearConsole}
-                  />
-                </Panel>
-              </ResizablePanel>
-            </>
-          )}
         </Group>
       </main>
     </div>
