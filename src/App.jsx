@@ -5,27 +5,20 @@ import Panel from "./components/layout/Panel";
 import CodeEditor from "./components/editors/CodeEditor";
 import Preview from "./components/preview/Preview";
 import ConsolePanel from "./components/console/ConsolePanel";
-import { loadCode, saveCode } from "./utils/storage";
+
+import {
+  createProject,
+  loadActiveProjectId,
+  loadProjects,
+  saveActiveProjectId,
+  saveProjects,
+} from "./utils/storage";
 
 import {
   Group,
   Panel as ResizablePanel,
   Separator,
 } from "react-resizable-panels";
-
-const DEFAULT_CODE = {
-  html: "<h1>Hello LibrePen!</h1>",
-  css: `body {
-  font-family: sans-serif;
-}`,
-  javascript: `console.log("Hello LibrePen!");`,
-};
-
-const EMPTY_CODE = {
-  html: "",
-  css: "",
-  javascript: "",
-};
 
 function App() {
   const previewPanelRef = useRef(null);
@@ -38,18 +31,51 @@ function App() {
     console: false,
   });
 
-  const [code, setCode] = useState(() => {
-    return loadCode() || DEFAULT_CODE;
+  // Load all saved projects once when LibrePen starts.
+  const [projects, setProjects] = useState(() => {
+    return loadProjects();
   });
+
+  // Restore the project that was open during the previous session.
+  const [activeProjectId, setActiveProjectId] = useState(() => {
+    const savedProjects = loadProjects();
+    const savedActiveProjectId = loadActiveProjectId();
+
+    const activeProjectStillExists = savedProjects.some(
+      (project) => project.id === savedActiveProjectId,
+    );
+
+    if (activeProjectStillExists) {
+      return savedActiveProjectId;
+    }
+
+    return savedProjects[0].id;
+  });
+
+  const activeProject =
+    projects.find((project) => project.id === activeProjectId) ?? projects[0];
+
+  const code = {
+    html: activeProject?.html ?? "",
+    css: activeProject?.css ?? "",
+    javascript: activeProject?.javascript ?? "",
+  };
 
   const [runningCode, setRunningCode] = useState(code);
   const [consoleMessages, setConsoleMessages] = useState([]);
   const [runId, setRunId] = useState(0);
 
-  // Automatically save whenever HTML, CSS, or JavaScript changes.
+  // Save the complete project collection whenever it changes.
   useEffect(() => {
-    saveCode(code);
-  }, [code]);
+    saveProjects(projects);
+  }, [projects]);
+
+  // Remember which project is currently open.
+  useEffect(() => {
+    if (activeProjectId) {
+      saveActiveProjectId(activeProjectId);
+    }
+  }, [activeProjectId]);
 
   // Listen for console messages coming from the Preview iframe.
   useEffect(() => {
@@ -97,10 +123,19 @@ function App() {
   };
 
   const updateCode = (language, value) => {
-    setCode((currentCode) => ({
-      ...currentCode,
-      [language]: value,
-    }));
+    setProjects((currentProjects) =>
+      currentProjects.map((project) => {
+        if (project.id !== activeProjectId) {
+          return project;
+        }
+
+        return {
+          ...project,
+          [language]: value,
+          updatedAt: new Date().toISOString(),
+        };
+      }),
+    );
   };
 
   const clearConsole = () => {
@@ -113,17 +148,131 @@ function App() {
     setRunId((currentId) => currentId + 1);
   };
 
+  const switchProject = (projectId) => {
+    const project = projects.find(
+      (currentProject) => currentProject.id === projectId,
+    );
+
+    if (!project) {
+      return;
+    }
+
+    setActiveProjectId(projectId);
+
+    setRunningCode({
+      html: project.html,
+      css: project.css,
+      javascript: project.javascript,
+    });
+
+    setConsoleMessages([]);
+    setRunId((currentId) => currentId + 1);
+  };
+
   const createNewProject = () => {
+    const projectName = window.prompt("Project name:", "Untitled Project");
+
+    if (projectName === null) {
+      return;
+    }
+
+    const cleanName = projectName.trim() || "Untitled Project";
+
+    const newProject = createProject(cleanName);
+
+    setProjects((currentProjects) => [...currentProjects, newProject]);
+
+    setActiveProjectId(newProject.id);
+
+    setRunningCode({
+      html: newProject.html,
+      css: newProject.css,
+      javascript: newProject.javascript,
+    });
+
+    setConsoleMessages([]);
+    setRunId((currentId) => currentId + 1);
+  };
+
+  const renameProject = () => {
+    if (!activeProject) {
+      return;
+    }
+
+    const newName = window.prompt("Rename project:", activeProject.name);
+
+    if (newName === null) {
+      return;
+    }
+
+    const cleanName = newName.trim();
+
+    if (!cleanName) {
+      return;
+    }
+
+    setProjects((currentProjects) =>
+      currentProjects.map((project) => {
+        if (project.id !== activeProjectId) {
+          return project;
+        }
+
+        return {
+          ...project,
+          name: cleanName,
+          updatedAt: new Date().toISOString(),
+        };
+      }),
+    );
+  };
+
+  const deleteProject = () => {
+    if (!activeProject) {
+      return;
+    }
+
     const confirmed = window.confirm(
-      "Start a new project? Your current code will be cleared.",
+      `Delete "${activeProject.name}"? This cannot be undone.`,
     );
 
     if (!confirmed) {
       return;
     }
 
-    setCode({ ...EMPTY_CODE });
-    setRunningCode({ ...EMPTY_CODE });
+    const remainingProjects = projects.filter(
+      (project) => project.id !== activeProjectId,
+    );
+
+    // LibrePen should always have at least one project.
+    if (remainingProjects.length === 0) {
+      const replacementProject = createProject("Untitled Project");
+
+      setProjects([replacementProject]);
+      setActiveProjectId(replacementProject.id);
+
+      setRunningCode({
+        html: "",
+        css: "",
+        javascript: "",
+      });
+
+      setConsoleMessages([]);
+      setRunId((currentId) => currentId + 1);
+
+      return;
+    }
+
+    const nextProject = remainingProjects[0];
+
+    setProjects(remainingProjects);
+    setActiveProjectId(nextProject.id);
+
+    setRunningCode({
+      html: nextProject.html,
+      css: nextProject.css,
+      javascript: nextProject.javascript,
+    });
+
     setConsoleMessages([]);
     setRunId((currentId) => currentId + 1);
   };
@@ -134,7 +283,23 @@ function App() {
         <h1>LibrePen</h1>
 
         <div className="topbar-actions">
+          <select
+            value={activeProjectId}
+            onChange={(event) => switchProject(event.target.value)}
+            aria-label="Select project"
+          >
+            {projects.map((project) => (
+              <option key={project.id} value={project.id}>
+                {project.name}
+              </option>
+            ))}
+          </select>
+
           <button onClick={createNewProject}>New</button>
+
+          <button onClick={renameProject}>Rename</button>
+
+          <button onClick={deleteProject}>Delete</button>
 
           <button onClick={runCode}>Run ▶</button>
 
@@ -209,7 +374,7 @@ function App() {
             }`}
           />
 
-          {/* Preview stays mounted so JavaScript can keep running */}
+          {/* Preview remains mounted */}
           <ResizablePanel
             minSize="15%"
             collapsible
