@@ -3,14 +3,23 @@ import "./App.css";
 
 import Panel from "./components/layout/Panel";
 import CodeEditor from "./components/editors/CodeEditor";
-import Preview from "./components/Preview/Preview";
+import Preview from "./components/preview/Preview";
 import ConsolePanel from "./components/console/ConsolePanel";
+import { loadCode, saveCode } from "./utils/storage";
 
 import {
   Group,
   Panel as ResizablePanel,
   Separator,
 } from "react-resizable-panels";
+
+const DEFAULT_CODE = {
+  html: "<h1>Hello LibrePen!</h1>",
+  css: `body {
+  font-family: sans-serif;
+}`,
+  javascript: `console.log("Hello LibrePen!");`,
+};
 
 function App() {
   const previewPanelRef = useRef(null);
@@ -23,21 +32,22 @@ function App() {
     console: false,
   });
 
-  const [code, setCode] = useState({
-    html: "<h1>Hello LibrePen!</h1>",
-    css: `body {
-  font-family: sans-serif;
-}`,
-    javascript: `console.log("Hello LibrePen!");`,
+  // Load previously saved code when LibrePen starts.
+  // If nothing has been saved yet, use the default starter code.
+  const [code, setCode] = useState(() => {
+    return loadCode() || DEFAULT_CODE;
   });
 
   const [runningCode, setRunningCode] = useState(code);
-
   const [consoleMessages, setConsoleMessages] = useState([]);
-
   const [runId, setRunId] = useState(0);
 
-  // Listen for messages coming from the Preview iframe
+  // Automatically save whenever HTML, CSS, or JavaScript changes.
+  useEffect(() => {
+    saveCode(code);
+  }, [code]);
+
+  // Listen for console messages coming from the Preview iframe.
   useEffect(() => {
     const handleMessage = (event) => {
       if (event.data?.source !== "librepen-preview") {
@@ -60,7 +70,7 @@ function App() {
     };
   }, []);
 
-  // Collapse or expand Preview without destroying its iframe
+  // Collapse or expand Preview without destroying its iframe.
   useEffect(() => {
     const previewPanel = previewPanelRef.current;
 
@@ -157,20 +167,18 @@ function App() {
 
           {/* JavaScript */}
           {visiblePanels.javascript && (
-            <>
-              <ResizablePanel minSize="15%">
-                <Panel
-                  title="JavaScript"
-                  onClose={() => togglePanel("javascript")}
-                >
-                  <CodeEditor
-                    language="javascript"
-                    value={code.javascript}
-                    onChange={(value) => updateCode("javascript", value)}
-                  />
-                </Panel>
-              </ResizablePanel>
-            </>
+            <ResizablePanel minSize="15%">
+              <Panel
+                title="JavaScript"
+                onClose={() => togglePanel("javascript")}
+              >
+                <CodeEditor
+                  language="javascript"
+                  value={code.javascript}
+                  onChange={(value) => updateCode("javascript", value)}
+                />
+              </Panel>
+            </ResizablePanel>
           )}
 
           {/* Separator before Preview */}
@@ -180,7 +188,7 @@ function App() {
             }`}
           />
 
-          {/* Preview */}
+          {/* Preview stays mounted so JavaScript can keep running */}
           <ResizablePanel
             minSize="15%"
             collapsible
