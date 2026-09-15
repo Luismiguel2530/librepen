@@ -181,3 +181,20 @@ button {
 .panel-hidden {
   display: none;
 }
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.brand h1 {
+  margin: 0;
+}

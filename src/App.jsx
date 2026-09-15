@@ -280,7 +280,10 @@ function App() {
   return (
     <div className="app">
       <header className="topbar">
-        <h1>LibrePen</h1>
+        <div className="brand">
+          <img src="/librepen-icon.png" alt="" className="brand-icon" />
+          <h1>LibrePen</h1>
+        </div>
 
         <div className="topbar-actions">
           <select
