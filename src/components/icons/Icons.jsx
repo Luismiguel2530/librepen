@@ -264,3 +264,23 @@ export function LibrePenMark() {
     </svg>
   );
 }
+export function FormatIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="17"
+      height="17"
+      aria-hidden="true"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M4 6h16" />
+      <path d="M4 12h10" />
+      <path d="M4 18h13" />
+      <path d="m18 11 2 2-2 2" />
+    </svg>
+  );
+}

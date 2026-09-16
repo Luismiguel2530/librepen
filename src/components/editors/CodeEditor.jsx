@@ -7,6 +7,7 @@ function CodeEditor({
   value,
   onChange,
   onRun,
+  onFormat,
   fontSize = 14,
   wordWrap = true,
   minimap = false,
@@ -14,7 +15,11 @@ function CodeEditor({
   const monaco = useMonaco();
   const emmetInitialized = useRef(false);
   const onRunRef = useRef(onRun);
+  const onFormatRef = useRef(onFormat);
 
+  useEffect(() => {
+    onFormatRef.current = onFormat;
+  }, [onFormat]);
   useEffect(() => {
     onRunRef.current = onRun;
   }, [onRun]);
@@ -31,12 +36,23 @@ function CodeEditor({
     emmetInitialized.current = true;
   }, [monaco]);
 
-  // Register Ctrl+Enter / Cmd+Enter directly inside Monaco.
+  // Register editor shortcuts directly inside Monaco.
   const handleEditorMount = (editor, monacoInstance) => {
+    // Run code: Ctrl+Enter / Cmd+Enter
     editor.addCommand(
       monacoInstance.KeyMod.CtrlCmd | monacoInstance.KeyCode.Enter,
       () => {
         onRunRef.current?.();
+      },
+    );
+
+    // Format code: Shift+Alt+F
+    editor.addCommand(
+      monacoInstance.KeyMod.Shift |
+        monacoInstance.KeyMod.Alt |
+        monacoInstance.KeyCode.KeyF,
+      () => {
+        onFormatRef.current?.();
       },
     );
   };

@@ -6,6 +6,7 @@ import {
   LibrePenMark,
   SettingsIcon,
   StarIcon,
+  FormatIcon,
 } from "../icons/Icons";
 
 import SettingsView from "./SettingsView";
@@ -20,6 +21,7 @@ function AppSidebar({
   onImportProject,
   onExportProject,
   onClose,
+  onFormatCode,
 }) {
   if (!open) {
     return null;
@@ -106,6 +108,18 @@ function AppSidebar({
                   <span>Export project</span>
                 </button>
               </div>
+              <button
+                type="button"
+                className="sidebar-item"
+                onClick={onFormatCode}
+              >
+                <FormatIcon />
+
+                <span className="sidebar-item-text">
+                  <span>Format code</span>
+                  <small>Shift + Alt + F</small>
+                </span>
+              </button>
             </div>
 
             <div className="sidebar-footer">

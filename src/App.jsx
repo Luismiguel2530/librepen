@@ -25,6 +25,7 @@ import {
 } from "react-resizable-panels";
 
 import { exportProject, parseImportedProject } from "./utils/projectTransfer";
+import { formatProjectCode } from "./utils/formatter";
 
 function App() {
   const previewPanelRef = useRef(null);
@@ -455,6 +456,39 @@ function App() {
     }
   };
 
+  const formatCode = async () => {
+    try {
+      const latestCode = codeRef.current;
+
+      const formattedCode = await formatProjectCode(latestCode);
+
+      setProjects((currentProjects) =>
+        currentProjects.map((project) => {
+          if (project.id !== activeProjectId) {
+            return project;
+          }
+
+          return {
+            ...project,
+            ...formattedCode,
+            updatedAt: new Date().toISOString(),
+          };
+        }),
+      );
+
+      codeRef.current = formattedCode;
+
+      setSidebarOpen(false);
+      setSidebarView("menu");
+    } catch (error) {
+      console.error("Failed to format LibrePen code:", error);
+
+      window.alert(
+        "LibrePen could not format the code. Check for syntax errors and try again.",
+      );
+    }
+  };
+
   return (
     <div className="app">
       <input
@@ -464,6 +498,7 @@ function App() {
         onChange={handleImportProject}
         hidden
       />
+
       <AppSidebar
         open={sidebarOpen}
         view={sidebarView}
@@ -473,6 +508,7 @@ function App() {
         onResetSettings={resetSettings}
         onImportProject={openImportDialog}
         onExportProject={handleExportProject}
+        onFormatCode={formatCode}
         onClose={() => setSidebarOpen(false)}
       />
 
@@ -503,6 +539,7 @@ function App() {
                     fontSize={settings.fontSize}
                     wordWrap={settings.wordWrap}
                     minimap={settings.minimap}
+                    onFormat={formatCode}
                   />
                 </Panel>
               </ResizablePanel>
@@ -523,6 +560,7 @@ function App() {
                     fontSize={settings.fontSize}
                     wordWrap={settings.wordWrap}
                     minimap={settings.minimap}
+                    onFormat={formatCode}
                   />
                 </Panel>
               </ResizablePanel>
@@ -546,6 +584,7 @@ function App() {
                     fontSize={settings.fontSize}
                     wordWrap={settings.wordWrap}
                     minimap={settings.minimap}
+                    onFormat={formatCode}
                   />
                 </Panel>
               </ResizablePanel>
