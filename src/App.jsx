@@ -107,11 +107,174 @@ function PlayIcon() {
   );
 }
 
+function MenuIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      aria-hidden="true"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+    >
+      <path d="M4 7h16M4 12h16M4 17h16" />
+    </svg>
+  );
+}
+
+function CloseIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="17"
+      height="17"
+      aria-hidden="true"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+    >
+      <path d="M6 6l12 12M18 6 6 18" />
+    </svg>
+  );
+}
+
+function SettingsIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="17"
+      height="17"
+      aria-hidden="true"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+    >
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19 13.5v-3l-2-.6a7 7 0 0 0-.7-1.7l1-1.8-2.1-2.1-1.8 1a7 7 0 0 0-1.7-.7L11 3H8l-.6 2a7 7 0 0 0-1.7.7l-1.8-1-2.1 2.1 1 1.8a7 7 0 0 0-.7 1.7L1 11v3l2 .6a7 7 0 0 0 .7 1.7l-1 1.8 2.1 2.1 1.8-1a7 7 0 0 0 1.7.7L9 22h3l.6-2a7 7 0 0 0 1.7-.7l1.8 1 2.1-2.1-1-1.8a7 7 0 0 0 .7-1.7Z" />
+    </svg>
+  );
+}
+
+function ImportIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="17"
+      height="17"
+      aria-hidden="true"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 3v12" />
+      <path d="m7 10 5 5 5-5" />
+      <path d="M5 21h14" />
+    </svg>
+  );
+}
+
+function ExportIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="17"
+      height="17"
+      aria-hidden="true"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 21V9" />
+      <path d="m7 14 5-5 5 5" />
+      <path d="M5 3h14" />
+    </svg>
+  );
+}
+
+function StarIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="17"
+      height="17"
+      aria-hidden="true"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinejoin="round"
+    >
+      <path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z" />
+    </svg>
+  );
+}
+
+function InfoIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="17"
+      height="17"
+      aria-hidden="true"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+    >
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 11v6" />
+      <path d="M12 7h.01" />
+    </svg>
+  );
+}
+
+function LibrePenMark() {
+  return (
+    <svg viewBox="0 0 32 32" className="brand-mark" aria-hidden="true">
+      <rect x="3" y="3" width="26" height="26" rx="7" fill="currentColor" />
+
+      <path
+        d="M13 10 8 16l5 6"
+        fill="none"
+        stroke="white"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+
+      <path
+        d="m19 10 5 6-5 6"
+        fill="none"
+        stroke="white"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+
+      <path
+        d="m18 8-4 16"
+        fill="none"
+        stroke="white"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        opacity="0.85"
+      />
+    </svg>
+  );
+}
+
 function App() {
   const previewPanelRef = useRef(null);
   const projectMenuRef = useRef(null);
 
   const [projectMenuOpen, setProjectMenuOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [visiblePanels, setVisiblePanels] = useState({
     html: true,
@@ -245,6 +408,25 @@ function App() {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
+
+  // Close the sidebar with Escape.
+  useEffect(() => {
+    if (!sidebarOpen) {
+      return;
+    }
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setSidebarOpen(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [sidebarOpen]);
 
   const togglePanel = (panelName) => {
     setVisiblePanels((currentPanels) => ({
@@ -465,9 +647,130 @@ function App() {
 
   return (
     <div className="app">
+      {/* Sidebar is outside the navbar so it overlays the whole app. */}
+      {sidebarOpen && (
+        <div
+          className="sidebar-backdrop"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              setSidebarOpen(false);
+            }
+          }}
+        >
+          <aside className="sidebar" aria-label="LibrePen menu">
+            <div className="sidebar-header">
+              <div className="sidebar-brand">
+                <LibrePenMark />
+
+                <div>
+                  <strong>LibrePen</strong>
+                  <span>Browser playground</span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="sidebar-close"
+                onClick={() => setSidebarOpen(false)}
+                aria-label="Close menu"
+                title="Close menu"
+              >
+                <CloseIcon />
+              </button>
+            </div>
+
+            <div className="sidebar-content">
+              <div className="sidebar-section">
+                <span className="sidebar-section-label">Workspace</span>
+
+                <button
+                  type="button"
+                  className="sidebar-item sidebar-item-coming"
+                  disabled
+                >
+                  <SettingsIcon />
+
+                  <span className="sidebar-item-text">
+                    <span>Settings</span>
+                    <small>Coming next</small>
+                  </span>
+                </button>
+              </div>
+
+              <div className="sidebar-section">
+                <span className="sidebar-section-label">Project</span>
+
+                <button
+                  type="button"
+                  className="sidebar-item sidebar-item-coming"
+                  disabled
+                >
+                  <ImportIcon />
+
+                  <span className="sidebar-item-text">
+                    <span>Import</span>
+                    <small>Coming soon</small>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  className="sidebar-item sidebar-item-coming"
+                  disabled
+                >
+                  <ExportIcon />
+
+                  <span className="sidebar-item-text">
+                    <span>Export</span>
+                    <small>Coming soon</small>
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            <div className="sidebar-footer">
+              <button
+                type="button"
+                className="sidebar-item sidebar-item-coming"
+                disabled
+                title="GitHub link will be connected later"
+              >
+                <StarIcon />
+                <span>Star on GitHub</span>
+              </button>
+
+              <button
+                type="button"
+                className="sidebar-item"
+                onClick={() => {
+                  window.alert(
+                    "LibrePen\n\nA simple, open-source browser playground for HTML, CSS and JavaScript.",
+                  );
+                }}
+              >
+                <InfoIcon />
+                <span>About LibrePen</span>
+              </button>
+            </div>
+          </aside>
+        </div>
+      )}
+
       <header className="topbar">
+        {/* New flat navbar brand + sidebar trigger */}
         <div className="brand">
-          <img src="/librepen-icon.png" alt="" className="brand-icon" />
+          <button
+            type="button"
+            className="sidebar-toggle"
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Open LibrePen menu"
+            title="Menu"
+          >
+            <MenuIcon />
+          </button>
+
+          <LibrePenMark />
+
           <h1>LibrePen</h1>
         </div>
 
