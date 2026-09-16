@@ -57,7 +57,7 @@ function Preview({ html, css, javascript, runId }) {
           };
 
           ${javascript}
-        <\/script>
+        </script>
       </body>
     </html>
   `;

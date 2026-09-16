@@ -15,8 +15,9 @@ function CodeEditor({
   const emmetInitialized = useRef(false);
   const onRunRef = useRef(onRun);
 
-  // Always keep the latest Run function available to Monaco.
-  onRunRef.current = onRun;
+  useEffect(() => {
+    onRunRef.current = onRun;
+  }, [onRun]);
 
   // Initialize Emmet once Monaco is ready.
   useEffect(() => {
