@@ -153,6 +153,9 @@ function App() {
   const [consoleMessages, setConsoleMessages] = useState([]);
   const [runId, setRunId] = useState(0);
 
+  // Auto Run is intentionally disabled by default.
+  const [autoRun, setAutoRun] = useState(false);
+
   useEffect(() => {
     saveProjects(projects);
   }, [projects]);
@@ -163,6 +166,7 @@ function App() {
     }
   }, [activeProjectId]);
 
+  // Listen for console messages coming from Preview.
   useEffect(() => {
     const handleMessage = (event) => {
       if (event.data?.source !== "librepen-preview") {
@@ -185,6 +189,7 @@ function App() {
     };
   }, []);
 
+  // Keep Preview visually collapsed when other panels change.
   useEffect(() => {
     const previewPanel = previewPanelRef.current;
 
@@ -200,10 +205,8 @@ function App() {
       }
     };
 
-    // Sync once immediately.
     syncPreviewState();
 
-    // Sync again after the panel group finishes recalculating its layout.
     const animationFrame = requestAnimationFrame(syncPreviewState);
 
     return () => {
@@ -217,6 +220,7 @@ function App() {
     visiblePanels.console,
   ]);
 
+  // Close the project menu when clicking outside or pressing Escape.
   useEffect(() => {
     const handlePointerDown = (event) => {
       if (
@@ -274,6 +278,57 @@ function App() {
     setRunningCode({ ...code });
     setRunId((currentId) => currentId + 1);
   };
+
+  // Auto Run:
+  // Wait 600ms after the user stops editing before updating Preview.
+  useEffect(() => {
+    if (!autoRun) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setConsoleMessages([]);
+
+      setRunningCode({
+        html: code.html,
+        css: code.css,
+        javascript: code.javascript,
+      });
+
+      setRunId((currentId) => currentId + 1);
+    }, 600);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [autoRun, code.html, code.css, code.javascript]);
+
+  // Keyboard shortcut:
+  // Ctrl + Enter on Windows/Linux
+  // Cmd + Enter on macOS
+  useEffect(() => {
+    const handleRunShortcut = (event) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+        event.preventDefault();
+
+        setConsoleMessages([]);
+
+        setRunningCode({
+          html: code.html,
+          css: code.css,
+          javascript: code.javascript,
+        });
+
+        setRunId((currentId) => currentId + 1);
+      }
+    };
+
+    window.addEventListener("keydown", handleRunShortcut);
+
+    return () => {
+      window.removeEventListener("keydown", handleRunShortcut);
+    };
+  }, [code.html, code.css, code.javascript]);
 
   const switchProject = (projectId) => {
     const project = projects.find(
@@ -553,11 +608,26 @@ function App() {
 
           <div className="toolbar-divider" />
 
+          <label
+            className="auto-run-control"
+            title="Automatically run code after you stop typing"
+          >
+            <span>Auto Run</span>
+
+            <input
+              type="checkbox"
+              checked={autoRun}
+              onChange={(event) => setAutoRun(event.target.checked)}
+            />
+
+            <span className="auto-run-switch" aria-hidden="true" />
+          </label>
+
           <button
             type="button"
             className="run-button"
             onClick={runCode}
-            title="Run project"
+            title="Run project (Ctrl+Enter)"
           >
             <PlayIcon />
             <span>Run</span>
@@ -575,6 +645,7 @@ function App() {
                     language="html"
                     value={code.html}
                     onChange={(value) => updateCode("html", value)}
+                    onRun={runCode}
                   />
                 </Panel>
               </ResizablePanel>
@@ -591,6 +662,7 @@ function App() {
                     language="css"
                     value={code.css}
                     onChange={(value) => updateCode("css", value)}
+                    onRun={runCode}
                   />
                 </Panel>
               </ResizablePanel>
@@ -610,6 +682,7 @@ function App() {
                     language="javascript"
                     value={code.javascript}
                     onChange={(value) => updateCode("javascript", value)}
+                    onRun={runCode}
                   />
                 </Panel>
               </ResizablePanel>
