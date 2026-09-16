@@ -2,7 +2,15 @@ import { useEffect, useRef } from "react";
 import Editor, { useMonaco } from "@monaco-editor/react";
 import { emmetCSS, emmetHTML } from "emmet-monaco-es";
 
-function CodeEditor({ language, value, onChange, onRun }) {
+function CodeEditor({
+  language,
+  value,
+  onChange,
+  onRun,
+  fontSize = 14,
+  wordWrap = true,
+  minimap = false,
+}) {
   const monaco = useMonaco();
   const emmetInitialized = useRef(false);
   const onRunRef = useRef(onRun);
@@ -42,13 +50,13 @@ function CodeEditor({ language, value, onChange, onRun }) {
       theme="vs-dark"
       options={{
         minimap: {
-          enabled: false,
+          enabled: minimap,
         },
 
-        fontSize: 14,
+        fontSize,
         automaticLayout: true,
         scrollBeyondLastLine: false,
-        wordWrap: "on",
+        wordWrap: wordWrap ? "on" : "off",
 
         quickSuggestions: {
           other: true,

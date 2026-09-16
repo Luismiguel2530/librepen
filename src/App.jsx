@@ -14,6 +14,8 @@ import {
   saveProjects,
 } from "./utils/storage";
 
+import { DEFAULT_SETTINGS, loadSettings, saveSettings } from "./utils/settings";
+
 import {
   Group,
   Panel as ResizablePanel,
@@ -268,6 +270,23 @@ function LibrePenMark() {
     </svg>
   );
 }
+function BackIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="17"
+      height="17"
+      aria-hidden="true"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m15 18-6-6 6-6" />
+    </svg>
+  );
+}
 
 function App() {
   const previewPanelRef = useRef(null);
@@ -275,6 +294,11 @@ function App() {
 
   const [projectMenuOpen, setProjectMenuOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarView, setSidebarView] = useState("menu");
+
+  const [settings, setSettings] = useState(() => {
+    return loadSettings();
+  });
 
   const [visiblePanels, setVisiblePanels] = useState({
     html: true,
@@ -312,12 +336,15 @@ function App() {
     javascript: activeProject?.javascript ?? "",
   };
 
+  // Always keep a reference to the latest version of the code.
+  // This prevents shortcuts registered by Monaco from using stale code
+  // after an editor panel is closed or remounted.
+  const codeRef = useRef(code);
+  codeRef.current = code;
+
   const [runningCode, setRunningCode] = useState(code);
   const [consoleMessages, setConsoleMessages] = useState([]);
   const [runId, setRunId] = useState(0);
-
-  // Auto Run is intentionally disabled by default.
-  const [autoRun, setAutoRun] = useState(false);
 
   useEffect(() => {
     saveProjects(projects);
@@ -456,15 +483,17 @@ function App() {
   };
 
   const runCode = () => {
+    const latestCode = codeRef.current;
+
     setConsoleMessages([]);
-    setRunningCode({ ...code });
+    setRunningCode({ ...latestCode });
     setRunId((currentId) => currentId + 1);
   };
 
   // Auto Run:
   // Wait 600ms after the user stops editing before updating Preview.
   useEffect(() => {
-    if (!autoRun) {
+    if (!settings.autoRun) {
       return;
     }
 
@@ -483,25 +512,21 @@ function App() {
     return () => {
       window.clearTimeout(timeoutId);
     };
-  }, [autoRun, code.html, code.css, code.javascript]);
+  }, [settings.autoRun, code.html, code.css, code.javascript]);
 
-  // Keyboard shortcut:
+  // Save user settings whenever they change.
+  useEffect(() => {
+    saveSettings(settings);
+  }, [settings]);
+
+  // Global keyboard shortcut:
   // Ctrl + Enter on Windows/Linux
   // Cmd + Enter on macOS
   useEffect(() => {
     const handleRunShortcut = (event) => {
       if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
         event.preventDefault();
-
-        setConsoleMessages([]);
-
-        setRunningCode({
-          html: code.html,
-          css: code.css,
-          javascript: code.javascript,
-        });
-
-        setRunId((currentId) => currentId + 1);
+        runCode();
       }
     };
 
@@ -510,7 +535,7 @@ function App() {
     return () => {
       window.removeEventListener("keydown", handleRunShortcut);
     };
-  }, [code.html, code.css, code.javascript]);
+  }, []);
 
   const switchProject = (projectId) => {
     const project = projects.find(
@@ -642,6 +667,17 @@ function App() {
     setRunId((currentId) => currentId + 1);
   };
 
+  const updateSetting = (settingName, value) => {
+    setSettings((currentSettings) => ({
+      ...currentSettings,
+      [settingName]: value,
+    }));
+  };
+
+  const resetSettings = () => {
+    setSettings({ ...DEFAULT_SETTINGS });
+  };
+
   const panelButtonClass = (panelName) =>
     `view-button ${visiblePanels[panelName] ? "view-button-active" : ""}`;
 
@@ -658,100 +694,228 @@ function App() {
           }}
         >
           <aside className="sidebar" aria-label="LibrePen menu">
-            <div className="sidebar-header">
-              <div className="sidebar-brand">
-                <LibrePenMark />
+            {sidebarView === "menu" ? (
+              <>
+                <div className="sidebar-header">
+                  <div className="sidebar-brand">
+                    <LibrePenMark />
 
-                <div>
-                  <strong>LibrePen</strong>
-                  <span>Browser playground</span>
+                    <div>
+                      <strong>LibrePen</strong>
+                      <span>Browser playground</span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="sidebar-close"
+                    onClick={() => {
+                      setSidebarOpen(false);
+                      setSidebarView("menu");
+                    }}
+                    aria-label="Close menu"
+                    title="Close menu"
+                  >
+                    <CloseIcon />
+                  </button>
                 </div>
-              </div>
 
-              <button
-                type="button"
-                className="sidebar-close"
-                onClick={() => setSidebarOpen(false)}
-                aria-label="Close menu"
-                title="Close menu"
-              >
-                <CloseIcon />
-              </button>
-            </div>
+                <div className="sidebar-content">
+                  <div className="sidebar-section">
+                    <span className="sidebar-section-label">Workspace</span>
 
-            <div className="sidebar-content">
-              <div className="sidebar-section">
-                <span className="sidebar-section-label">Workspace</span>
+                    <button
+                      type="button"
+                      className="sidebar-item"
+                      onClick={() => setSidebarView("settings")}
+                    >
+                      <SettingsIcon />
+                      <span>Settings</span>
+                    </button>
+                  </div>
 
-                <button
-                  type="button"
-                  className="sidebar-item sidebar-item-coming"
-                  disabled
-                >
-                  <SettingsIcon />
+                  <div className="sidebar-section">
+                    <span className="sidebar-section-label">Project</span>
 
-                  <span className="sidebar-item-text">
-                    <span>Settings</span>
-                    <small>Coming next</small>
-                  </span>
-                </button>
-              </div>
+                    <button
+                      type="button"
+                      className="sidebar-item sidebar-item-coming"
+                      disabled
+                    >
+                      <ImportIcon />
 
-              <div className="sidebar-section">
-                <span className="sidebar-section-label">Project</span>
+                      <span className="sidebar-item-text">
+                        <span>Import</span>
+                        <small>Coming soon</small>
+                      </span>
+                    </button>
 
-                <button
-                  type="button"
-                  className="sidebar-item sidebar-item-coming"
-                  disabled
-                >
-                  <ImportIcon />
+                    <button
+                      type="button"
+                      className="sidebar-item sidebar-item-coming"
+                      disabled
+                    >
+                      <ExportIcon />
 
-                  <span className="sidebar-item-text">
-                    <span>Import</span>
-                    <small>Coming soon</small>
-                  </span>
-                </button>
+                      <span className="sidebar-item-text">
+                        <span>Export</span>
+                        <small>Coming soon</small>
+                      </span>
+                    </button>
+                  </div>
+                </div>
 
-                <button
-                  type="button"
-                  className="sidebar-item sidebar-item-coming"
-                  disabled
-                >
-                  <ExportIcon />
+                <div className="sidebar-footer">
+                  <a
+                    className="sidebar-item sidebar-link"
+                    href="https://github.com/Luismiguel2530/librepen"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Open LibrePen on GitHub"
+                  >
+                    <StarIcon />
+                    <span>Star on GitHub</span>
+                  </a>
 
-                  <span className="sidebar-item-text">
-                    <span>Export</span>
-                    <small>Coming soon</small>
-                  </span>
-                </button>
-              </div>
-            </div>
+                  <button
+                    type="button"
+                    className="sidebar-item"
+                    onClick={() => {
+                      window.alert(
+                        "LibrePen\n\nA simple, open-source browser playground for HTML, CSS and JavaScript.",
+                      );
+                    }}
+                  >
+                    <InfoIcon />
+                    <span>About LibrePen</span>
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="sidebar-header settings-header">
+                  <div className="settings-header-title">
+                    <button
+                      type="button"
+                      className="sidebar-close"
+                      onClick={() => setSidebarView("menu")}
+                      aria-label="Back to menu"
+                      title="Back"
+                    >
+                      <BackIcon />
+                    </button>
 
-            <div className="sidebar-footer">
-              <button
-                type="button"
-                className="sidebar-item sidebar-item-coming"
-                disabled
-                title="GitHub link will be connected later"
-              >
-                <StarIcon />
-                <span>Star on GitHub</span>
-              </button>
+                    <strong>Settings</strong>
+                  </div>
 
-              <button
-                type="button"
-                className="sidebar-item"
-                onClick={() => {
-                  window.alert(
-                    "LibrePen\n\nA simple, open-source browser playground for HTML, CSS and JavaScript.",
-                  );
-                }}
-              >
-                <InfoIcon />
-                <span>About LibrePen</span>
-              </button>
-            </div>
+                  <button
+                    type="button"
+                    className="sidebar-close"
+                    onClick={() => {
+                      setSidebarOpen(false);
+                      setSidebarView("menu");
+                    }}
+                    aria-label="Close settings"
+                    title="Close"
+                  >
+                    <CloseIcon />
+                  </button>
+                </div>
+
+                <div className="sidebar-content settings-content">
+                  <div className="settings-section">
+                    <span className="sidebar-section-label">Editor</span>
+
+                    <div className="setting-row setting-row-column">
+                      <div className="setting-row-heading">
+                        <div>
+                          <strong>Font size</strong>
+                          <small>Editor text size</small>
+                        </div>
+
+                        <span className="setting-value">
+                          {settings.fontSize}px
+                        </span>
+                      </div>
+
+                      <input
+                        type="range"
+                        min="12"
+                        max="20"
+                        step="1"
+                        value={settings.fontSize}
+                        onChange={(event) =>
+                          updateSetting("fontSize", Number(event.target.value))
+                        }
+                        aria-label="Editor font size"
+                      />
+                    </div>
+
+                    <label className="setting-row">
+                      <div>
+                        <strong>Word wrap</strong>
+                        <small>Wrap long lines</small>
+                      </div>
+
+                      <input
+                        className="setting-checkbox"
+                        type="checkbox"
+                        checked={settings.wordWrap}
+                        onChange={(event) =>
+                          updateSetting("wordWrap", event.target.checked)
+                        }
+                      />
+                    </label>
+
+                    <label className="setting-row">
+                      <div>
+                        <strong>Minimap</strong>
+                        <small>Show code overview</small>
+                      </div>
+
+                      <input
+                        className="setting-checkbox"
+                        type="checkbox"
+                        checked={settings.minimap}
+                        onChange={(event) =>
+                          updateSetting("minimap", event.target.checked)
+                        }
+                      />
+                    </label>
+                  </div>
+
+                  <div className="settings-section">
+                    <span className="sidebar-section-label">Execution</span>
+
+                    <label className="setting-row">
+                      <div>
+                        <strong>Auto Run</strong>
+                        <small>Run 600 ms after editing</small>
+                      </div>
+
+                      <input
+                        className="setting-checkbox"
+                        type="checkbox"
+                        checked={settings.autoRun}
+                        onChange={(event) =>
+                          updateSetting("autoRun", event.target.checked)
+                        }
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                <div className="settings-footer">
+                  <button
+                    type="button"
+                    className="reset-settings-button"
+                    onClick={resetSettings}
+                  >
+                    Reset to defaults
+                  </button>
+                </div>
+              </>
+            )}
           </aside>
         </div>
       )}
@@ -911,21 +1075,6 @@ function App() {
 
           <div className="toolbar-divider" />
 
-          <label
-            className="auto-run-control"
-            title="Automatically run code after you stop typing"
-          >
-            <span>Auto Run</span>
-
-            <input
-              type="checkbox"
-              checked={autoRun}
-              onChange={(event) => setAutoRun(event.target.checked)}
-            />
-
-            <span className="auto-run-switch" aria-hidden="true" />
-          </label>
-
           <button
             type="button"
             className="run-button"
@@ -949,6 +1098,9 @@ function App() {
                     value={code.html}
                     onChange={(value) => updateCode("html", value)}
                     onRun={runCode}
+                    fontSize={settings.fontSize}
+                    wordWrap={settings.wordWrap}
+                    minimap={settings.minimap}
                   />
                 </Panel>
               </ResizablePanel>
@@ -966,6 +1118,9 @@ function App() {
                     value={code.css}
                     onChange={(value) => updateCode("css", value)}
                     onRun={runCode}
+                    fontSize={settings.fontSize}
+                    wordWrap={settings.wordWrap}
+                    minimap={settings.minimap}
                   />
                 </Panel>
               </ResizablePanel>
@@ -986,6 +1141,9 @@ function App() {
                     value={code.javascript}
                     onChange={(value) => updateCode("javascript", value)}
                     onRun={runCode}
+                    fontSize={settings.fontSize}
+                    wordWrap={settings.wordWrap}
+                    minimap={settings.minimap}
                   />
                 </Panel>
               </ResizablePanel>

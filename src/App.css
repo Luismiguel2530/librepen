@@ -1091,3 +1091,129 @@ button {
     animation: none;
   }
 }
+
+/* =========================
+   Settings
+   ========================= */
+
+.settings-header-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.settings-header-title strong {
+  color: #f1f5f9;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.settings-content {
+  padding-top: 10px;
+}
+
+.settings-section + .settings-section {
+  margin-top: 24px;
+}
+
+.setting-row {
+  width: 100%;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 9px;
+  border-radius: 6px;
+  color: #cbd5e1;
+}
+
+.setting-row:hover {
+  background: #111b2b;
+}
+
+.setting-row > div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.setting-row strong {
+  color: #dbe4ef;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.setting-row small {
+  color: #64748b;
+  font-size: 9px;
+}
+
+.setting-row-column {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.setting-row-heading {
+  width: 100%;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.setting-row-heading > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.setting-value {
+  color: #8ab4f8;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.setting-row input[type="range"] {
+  width: 100%;
+  height: 4px;
+  accent-color: #0c66e4;
+  cursor: pointer;
+}
+
+.setting-checkbox {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  accent-color: #0c66e4;
+  cursor: pointer;
+}
+
+.settings-footer {
+  flex-shrink: 0;
+  padding: 10px;
+  border-top: 1px solid #253044;
+}
+
+.reset-settings-button {
+  width: 100%;
+  min-height: 34px;
+  border: 1px solid #2b394e;
+  border-radius: 6px;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.reset-settings-button:hover {
+  border-color: #43546c;
+  background: #151f30;
+  color: #f1f5f9;
+}
+.sidebar-link {
+  text-decoration: none;
+}
