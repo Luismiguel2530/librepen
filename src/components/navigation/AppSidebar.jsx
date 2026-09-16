@@ -17,6 +17,8 @@ function AppSidebar({
   onViewChange,
   onSettingChange,
   onResetSettings,
+  onImportProject,
+  onExportProject,
   onClose,
 }) {
   if (!open) {
@@ -88,28 +90,20 @@ function AppSidebar({
 
                 <button
                   type="button"
-                  className="sidebar-item sidebar-item-coming"
-                  disabled
+                  className="sidebar-item"
+                  onClick={onImportProject}
                 >
                   <ImportIcon />
-
-                  <span className="sidebar-item-text">
-                    <span>Import</span>
-                    <small>Coming soon</small>
-                  </span>
+                  <span>Import project</span>
                 </button>
 
                 <button
                   type="button"
-                  className="sidebar-item sidebar-item-coming"
-                  disabled
+                  className="sidebar-item"
+                  onClick={onExportProject}
                 >
                   <ExportIcon />
-
-                  <span className="sidebar-item-text">
-                    <span>Export</span>
-                    <small>Coming soon</small>
-                  </span>
+                  <span>Export project</span>
                 </button>
               </div>
             </div>

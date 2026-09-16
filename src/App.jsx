@@ -24,8 +24,11 @@ import {
   Separator,
 } from "react-resizable-panels";
 
+import { exportProject, parseImportedProject } from "./utils/projectTransfer";
+
 function App() {
   const previewPanelRef = useRef(null);
+  const importFileInputRef = useRef(null);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarView, setSidebarView] = useState("menu");
@@ -385,8 +388,82 @@ function App() {
     setSettings({ ...DEFAULT_SETTINGS });
   };
 
+  const handleExportProject = () => {
+    try {
+      exportProject(activeProject);
+    } catch (error) {
+      window.alert(
+        error instanceof Error
+          ? error.message
+          : "Unable to export the project.",
+      );
+    }
+  };
+
+  const openImportDialog = () => {
+    importFileInputRef.current?.click();
+  };
+
+  const handleImportProject = async (event) => {
+    const file = event.target.files?.[0];
+
+    // Reset the input immediately so the same file can be selected again later.
+    event.target.value = "";
+
+    if (!file) {
+      return;
+    }
+
+    try {
+      const fileContents = await file.text();
+      const importedData = parseImportedProject(fileContents);
+
+      const importedProject = {
+        ...createProject(importedData.name),
+        html: importedData.html,
+        css: importedData.css,
+        javascript: importedData.javascript,
+      };
+
+      setProjects((currentProjects) => [...currentProjects, importedProject]);
+
+      setActiveProjectId(importedProject.id);
+
+      codeRef.current = {
+        html: importedProject.html,
+        css: importedProject.css,
+        javascript: importedProject.javascript,
+      };
+
+      setRunningCode({
+        html: importedProject.html,
+        css: importedProject.css,
+        javascript: importedProject.javascript,
+      });
+
+      setConsoleMessages([]);
+      setRunId((currentId) => currentId + 1);
+
+      setSidebarOpen(false);
+      setSidebarView("menu");
+    } catch (error) {
+      window.alert(
+        error instanceof Error
+          ? error.message
+          : "Unable to import the project.",
+      );
+    }
+  };
+
   return (
     <div className="app">
+      <input
+        ref={importFileInputRef}
+        type="file"
+        accept=".json,.librepen.json,application/json"
+        onChange={handleImportProject}
+        hidden
+      />
       <AppSidebar
         open={sidebarOpen}
         view={sidebarView}
@@ -394,6 +471,8 @@ function App() {
         onViewChange={setSidebarView}
         onSettingChange={updateSetting}
         onResetSettings={resetSettings}
+        onImportProject={openImportDialog}
+        onExportProject={handleExportProject}
         onClose={() => setSidebarOpen(false)}
       />
 
