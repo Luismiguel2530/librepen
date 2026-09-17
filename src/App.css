@@ -1125,13 +1125,366 @@ button {
     display: none;
   }
 }
+/* =========================
+   Dialogs
+   ========================= */
+.modal-button-danger {
+  border-color: #b42318;
+  background: #b42318;
+  color: #ffffff;
+}
 
+.modal-button-danger:hover {
+  border-color: #d92d20;
+  background: #d92d20;
+}
+
+.confirm-warning {
+  padding: 10px 12px;
+  border: 1px solid rgb(248 113 113 / 22%);
+  border-radius: var(--radius-md);
+  background: rgb(127 29 29 / 18%);
+  color: #fca5a5;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.modal-backdrop {
+  position: fixed;
+  z-index: 3000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgb(2 6 23 / 68%);
+  backdrop-filter: blur(2px);
+}
+
+.modal {
+  width: min(100%, 420px);
+  overflow: hidden;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  outline: none;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  box-shadow:
+    0 24px 60px rgb(0 0 0 / 45%),
+    0 4px 16px rgb(0 0 0 / 25%);
+  animation: modal-enter 0.14s ease-out;
+}
+.about-dialog {
+  display: grid;
+  gap: 14px;
+}
+
+.about-dialog-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.about-dialog-brand strong {
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.about-dialog-brand span {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.about-dialog p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.about-dialog .about-dialog-note {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+/* =========================
+   Toast Notifications
+   ========================= */
+
+.toast {
+  position: fixed;
+  z-index: 4000;
+  right: 18px;
+  bottom: 18px;
+
+  width: min(380px, calc(100vw - 36px));
+  min-height: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 10px 10px 10px 13px;
+
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+
+  box-shadow:
+    0 18px 45px rgb(0 0 0 / 35%),
+    0 3px 10px rgb(0 0 0 / 20%);
+
+  animation: toast-enter 0.18s ease-out;
+}
+
+@keyframes toast-enter {
+  from {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.toast-content {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.toast-indicator {
+  width: 7px;
+  height: 7px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: var(--primary-focus);
+}
+
+.toast-error .toast-indicator {
+  background: var(--error);
+}
+
+.toast-success .toast-indicator {
+  background: #4ade80;
+}
+
+.toast-warning .toast-indicator {
+  background: var(--warning);
+}
+
+.toast-message {
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.toast-close {
+  width: 28px;
+  height: 28px;
+
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+
+  padding: 0;
+
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+
+  background: transparent;
+  color: var(--text-muted);
+
+  font-size: 18px;
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.toast-close:hover {
+  border-color: #29374c;
+  background: var(--bg-surface-active);
+  color: #ffffff;
+}
+
+.toast-close:focus-visible {
+  outline: 2px solid var(--primary-focus);
+  outline-offset: 2px;
+}
+
+@media (max-width: 600px) {
+  .toast {
+    right: 12px;
+    bottom: 12px;
+    width: calc(100vw - 24px);
+  }
+}
+
+@keyframes modal-enter {
+  from {
+    transform: translateY(6px) scale(0.985);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  min-height: 62px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 16px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.modal-heading {
+  min-width: 0;
+}
+
+.modal-heading h2 {
+  margin: 0;
+  color: #f1f5f9;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.modal-heading p {
+  margin: 5px 0 0;
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.modal-close-button {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.modal-close-button:hover {
+  background: var(--bg-surface-active);
+  border-color: #29374c;
+  color: #ffffff;
+}
+
+.modal-close-button:focus-visible {
+  outline: 2px solid var(--primary-focus);
+  outline-offset: 2px;
+}
+
+.modal-content {
+  padding: 16px;
+}
+
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border-subtle);
+  background: rgb(15 23 42 / 35%);
+}
+
+.modal-button {
+  min-height: 34px;
+  padding: 0 13px;
+  border: 1px solid #334155;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.modal-button:hover {
+  background: var(--bg-surface-active);
+  border-color: var(--border-hover);
+  color: #ffffff;
+}
+
+.modal-button-primary {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.modal-button-primary:hover {
+  border-color: var(--primary-hover);
+  background: var(--primary-hover);
+}
+
+.modal-button:focus-visible {
+  outline: 2px solid var(--primary-focus);
+  outline-offset: 2px;
+}
+
+.modal-input {
+  width: 100%;
+  height: 38px;
+  padding: 0 11px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  outline: none;
+  background: var(--bg-app);
+  color: var(--text-primary);
+  font-size: 13px;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.modal-input::placeholder {
+  color: var(--text-dim);
+}
+
+.modal-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgb(12 102 228 / 18%);
+}
 /* =========================
    Reduced Motion
    ========================= */
 
 @media (prefers-reduced-motion: reduce) {
-  .sidebar {
+  .sidebar,
+  .modal,
+  .toast {
     animation: none;
   }
 }

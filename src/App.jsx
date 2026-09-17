@@ -7,6 +7,10 @@ import Preview from "./components/preview/Preview";
 import ConsolePanel from "./components/console/ConsolePanel";
 import AppSidebar from "./components/navigation/AppSidebar";
 import Topbar from "./components/navigation/Topbar";
+import ProjectNameDialog from "./components/ui/ProjectNameDialog";
+import ConfirmDialog from "./components/ui/ConfirmDialog";
+import AboutDialog from "./components/ui/AboutDialog";
+import Toast from "./components/ui/Toast";
 
 import {
   createProject,
@@ -34,9 +38,25 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarView, setSidebarView] = useState("menu");
 
+  const [projectDialog, setProjectDialog] = useState({
+    open: false,
+    mode: "new",
+  });
+
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
+  const [toast, setToast] = useState(null);
+
   const [settings, setSettings] = useState(() => {
     return loadSettings();
   });
+  const showToast = (message, type = "info") => {
+    setToast({
+      id: Date.now(),
+      message,
+      type,
+    });
+  };
 
   const [visiblePanels, setVisiblePanels] = useState({
     html: true,
@@ -267,8 +287,9 @@ function App() {
       } catch (error) {
         console.error("Failed to format LibrePen code before running:", error);
 
-        window.alert(
+        showToast(
           "LibrePen could not format the code before running. Check for syntax errors and try again.",
+          "error",
         );
 
         return;
@@ -355,15 +376,33 @@ function App() {
     setRunId((currentId) => currentId + 1);
   };
 
-  const createNewProject = () => {
-    const projectName = window.prompt("Project name:", "Untitled Project");
+  const openNewProjectDialog = () => {
+    setProjectDialog({
+      open: true,
+      mode: "new",
+    });
+  };
 
-    if (projectName === null) {
+  const openRenameProjectDialog = () => {
+    if (!activeProject) {
       return;
     }
 
-    const cleanName = projectName.trim() || "Untitled Project";
-    const newProject = createProject(cleanName);
+    setProjectDialog({
+      open: true,
+      mode: "rename",
+    });
+  };
+
+  const closeProjectDialog = () => {
+    setProjectDialog((currentDialog) => ({
+      ...currentDialog,
+      open: false,
+    }));
+  };
+
+  const createNewProject = (projectName) => {
+    const newProject = createProject(projectName);
 
     setProjects((currentProjects) => [...currentProjects, newProject]);
     setActiveProjectId(newProject.id);
@@ -384,22 +423,12 @@ function App() {
 
     setConsoleMessages([]);
     setRunId((currentId) => currentId + 1);
+
+    closeProjectDialog();
   };
 
-  const renameProject = () => {
+  const renameProject = (projectName) => {
     if (!activeProject) {
-      return;
-    }
-
-    const newName = window.prompt("Rename project:", activeProject.name);
-
-    if (newName === null) {
-      return;
-    }
-
-    const cleanName = newName.trim();
-
-    if (!cleanName) {
       return;
     }
 
@@ -411,23 +440,29 @@ function App() {
 
         return {
           ...project,
-          name: cleanName,
+          name: projectName,
           updatedAt: new Date().toISOString(),
         };
       }),
     );
+
+    closeProjectDialog();
   };
 
-  const deleteProject = () => {
+  const openDeleteProjectDialog = () => {
     if (!activeProject) {
       return;
     }
 
-    const confirmed = window.confirm(
-      `Delete "${activeProject.name}"? This cannot be undone.`,
-    );
+    setDeleteDialogOpen(true);
+  };
 
-    if (!confirmed) {
+  const closeDeleteProjectDialog = () => {
+    setDeleteDialogOpen(false);
+  };
+
+  const deleteProject = () => {
+    if (!activeProject) {
       return;
     }
 
@@ -458,6 +493,8 @@ function App() {
       setConsoleMessages([]);
       setRunId((currentId) => currentId + 1);
 
+      closeDeleteProjectDialog();
+
       return;
     }
 
@@ -482,6 +519,8 @@ function App() {
 
     setConsoleMessages([]);
     setRunId((currentId) => currentId + 1);
+
+    closeDeleteProjectDialog();
   };
 
   const updateSetting = (settingName, value) => {
@@ -508,10 +547,11 @@ function App() {
     try {
       exportProject(activeProject);
     } catch (error) {
-      window.alert(
+      showToast(
         error instanceof Error
           ? error.message
           : "Unable to export the project.",
+        "error",
       );
     }
   };
@@ -565,10 +605,11 @@ function App() {
       setSidebarOpen(false);
       setSidebarView("menu");
     } catch (error) {
-      window.alert(
+      showToast(
         error instanceof Error
           ? error.message
           : "Unable to import the project.",
+        "error",
       );
     }
   };
@@ -589,8 +630,9 @@ function App() {
     } catch (error) {
       console.error("Failed to format LibrePen code:", error);
 
-      window.alert(
+      showToast(
         "LibrePen could not format the code. Check for syntax errors and try again.",
+        "error",
       );
     }
   };
@@ -605,6 +647,40 @@ function App() {
         hidden
       />
 
+      {projectDialog.open && (
+        <ProjectNameDialog
+          mode={projectDialog.mode}
+          initialName={activeProject?.name ?? ""}
+          onClose={closeProjectDialog}
+          onSubmit={
+            projectDialog.mode === "rename" ? renameProject : createNewProject
+          }
+        />
+      )}
+
+      {deleteDialogOpen && activeProject && (
+        <ConfirmDialog
+          open
+          title="Delete project?"
+          description={`"${activeProject.name}" will be permanently deleted.`}
+          confirmLabel="Delete project"
+          danger
+          onConfirm={deleteProject}
+          onClose={closeDeleteProjectDialog}
+        />
+      )}
+      {aboutDialogOpen && (
+        <AboutDialog open onClose={() => setAboutDialogOpen(false)} />
+      )}
+      {toast && (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
+
       <AppSidebar
         open={sidebarOpen}
         view={sidebarView}
@@ -615,6 +691,7 @@ function App() {
         onImportProject={openImportDialog}
         onExportProject={handleExportProject}
         onFormatCode={formatCode}
+        onOpenAbout={() => setAboutDialogOpen(true)}
         onClose={() => setSidebarOpen(false)}
       />
 
@@ -623,9 +700,9 @@ function App() {
         activeProjectId={activeProjectId}
         visiblePanels={visiblePanels}
         onSwitchProject={switchProject}
-        onCreateProject={createNewProject}
-        onRenameProject={renameProject}
-        onDeleteProject={deleteProject}
+        onCreateProject={openNewProjectDialog}
+        onRenameProject={openRenameProjectDialog}
+        onDeleteProject={openDeleteProjectDialog}
         onTogglePanel={togglePanel}
         onOpenSidebar={() => setSidebarOpen(true)}
         onRun={runCode}

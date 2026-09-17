@@ -22,6 +22,7 @@ function AppSidebar({
   onExportProject,
   onClose,
   onFormatCode,
+  onOpenAbout,
 }) {
   if (!open) {
     return null;
@@ -30,6 +31,11 @@ function AppSidebar({
   const closeSidebar = () => {
     onClose();
     onViewChange("menu");
+  };
+
+  const handleOpenAbout = () => {
+    closeSidebar();
+    onOpenAbout();
   };
 
   return (
@@ -108,6 +114,7 @@ function AppSidebar({
                   <span>Export project</span>
                 </button>
               </div>
+
               <button
                 type="button"
                 className="sidebar-item"
@@ -137,11 +144,7 @@ function AppSidebar({
               <button
                 type="button"
                 className="sidebar-item"
-                onClick={() => {
-                  window.alert(
-                    "LibrePen\n\nA simple, open-source browser playground for HTML, CSS and JavaScript.",
-                  );
-                }}
+                onClick={handleOpenAbout}
               >
                 <InfoIcon />
                 <span>About LibrePen</span>
