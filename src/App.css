@@ -1,6 +1,6 @@
-* {
-  box-sizing: border-box;
-}
+/* =========================
+   LibrePen Design Tokens
+   ========================= */
 
 :root {
   font-family:
@@ -14,6 +14,61 @@
 
   color: #f8fafc;
   background: #0f172a;
+
+  /* Backgrounds */
+  --bg-app: #0f172a;
+  --bg-topbar: #0b1120;
+  --bg-surface: #111827;
+  --bg-surface-hover: #151f30;
+  --bg-surface-active: #182235;
+  --bg-panel-header: #151f30;
+
+  /* Borders */
+  --border-subtle: #253044;
+  --border-default: #334155;
+  --border-hover: #475569;
+
+  /* Text */
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+
+  /* Brand */
+  --primary: #0c66e4;
+  --primary-hover: #0055cc;
+  --primary-active: #09326c;
+  --primary-focus: #60a5fa;
+
+  /* Language accents */
+  --html-accent: #c96f50;
+  --css-accent: #438ab8;
+  --js-accent: #b99e3e;
+  --console-accent: #64748b;
+
+  /* Status */
+  --warning: #fbbf24;
+  --error: #f87171;
+
+  /* Radius */
+  --radius-sm: 5px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+
+  /* Layout */
+  --topbar-height: 52px;
+  --sidebar-width: 260px;
+
+  /* Motion */
+  --transition-fast: 0.15s ease;
+}
+
+/* =========================
+   Base
+   ========================= */
+
+* {
+  box-sizing: border-box;
 }
 
 body {
@@ -31,8 +86,8 @@ button {
 
 .app {
   min-height: 100vh;
-  background: #0f172a;
-  color: #f8fafc;
+  background: var(--bg-app);
+  color: var(--text-primary);
 }
 
 /* =========================
@@ -40,33 +95,40 @@ button {
    ========================= */
 
 .topbar {
-  height: 58px;
+  height: var(--topbar-height);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  padding: 0 16px;
-  background: #0b1120;
-  border-bottom: 1px solid #253044;
+  padding: 0 14px;
+  background: var(--bg-topbar);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-shrink: 0;
 }
 
 .brand-icon {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   object-fit: contain;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
+}
+
+.brand-mark {
+  width: 27px;
+  height: 27px;
+  flex-shrink: 0;
+  color: var(--primary);
 }
 
 .brand h1 {
   margin: 0;
-  font-size: 19px;
+  font-size: 17px;
   font-weight: 700;
   letter-spacing: -0.025em;
 }
@@ -76,45 +138,50 @@ button {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 8px;
+  gap: 4px;
 }
 
 .toolbar-group {
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 2px;
 }
 
 .toolbar-divider {
   width: 1px;
-  height: 24px;
-  margin: 0 5px;
+  height: 20px;
+  margin: 0 8px;
   flex-shrink: 0;
   background: #273449;
 }
 
 /* =========================
-   Project controls
+   Project Controls
    ========================= */
 
+.project-controls {
+  margin-right: 8px;
+}
+
 .project-select {
-  height: 36px;
-  width: 170px;
-  padding: 0 30px 0 10px;
-  border: 1px solid #334155;
-  border-radius: 6px;
+  width: 160px;
+  height: 32px;
+  padding: 0 30px 0 9px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
   outline: none;
-  background: #111827;
+  background: var(--bg-surface);
   color: #e5e7eb;
+  font-size: 13px;
   cursor: pointer;
   transition:
-    border-color 0.15s ease,
-    background-color 0.15s ease,
-    box-shadow 0.15s ease;
+    border-color var(--transition-fast),
+    background-color var(--transition-fast),
+    box-shadow var(--transition-fast);
 }
 
 .project-select:hover {
-  border-color: #475569;
+  border-color: var(--border-hover);
   background: #151e2e;
 }
 
@@ -125,22 +192,23 @@ button {
 
 .toolbar-button,
 .icon-button {
-  height: 36px;
+  height: 32px;
   border: 1px solid transparent;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   background: transparent;
   color: #aebaca;
+  font-size: 13px;
   cursor: pointer;
   transition:
-    background-color 0.15s ease,
-    border-color 0.15s ease,
-    color 0.15s ease;
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
 }
 
 .toolbar-button:hover,
 .icon-button:hover,
 .icon-button-active {
-  background: #182235;
+  background: var(--bg-surface-active);
   border-color: #29374c;
   color: #ffffff;
 }
@@ -149,22 +217,22 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 0 10px;
+  padding: 0 8px;
+}
+
+.icon-button {
+  width: 32px;
+  display: grid;
+  place-items: center;
+  padding: 0;
 }
 
 .new-button-icon {
   position: relative;
   top: -1px;
+  color: #93c5fd;
   font-size: 19px;
   line-height: 1;
-  color: #93c5fd;
-}
-
-.icon-button {
-  width: 36px;
-  display: grid;
-  place-items: center;
-  padding: 0;
 }
 
 /* Project dropdown */
@@ -178,11 +246,11 @@ button {
   z-index: 1000;
   top: calc(100% + 7px);
   right: 0;
-  width: 190px;
-  padding: 5px;
-  border: 1px solid #334155;
-  border-radius: 8px;
-  background: #111827;
+  width: 172px;
+  padding: 4px;
+  border: 1px solid var(--border-default);
+  border-radius: 7px;
+  background: var(--bg-surface);
   box-shadow:
     0 12px 30px rgb(0 0 0 / 35%),
     0 2px 8px rgb(0 0 0 / 25%);
@@ -190,15 +258,16 @@ button {
 
 .project-menu button {
   width: 100%;
-  height: 36px;
+  height: 32px;
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 0 9px;
+  gap: 7px;
+  padding: 0 8px;
   border: 0;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: #d5dbe5;
+  font-size: 12px;
   text-align: left;
   cursor: pointer;
 }
@@ -208,9 +277,14 @@ button {
   color: #ffffff;
 }
 
+.project-menu button svg {
+  width: 14px;
+  height: 14px;
+}
+
 .project-menu-separator {
   height: 1px;
-  margin: 4px 5px;
+  margin: 4px 6px;
   background: #293548;
 }
 
@@ -219,30 +293,31 @@ button {
 }
 
 .project-menu .project-menu-delete:hover {
-  background: rgb(127 29 29 / 22%);
+  background: rgb(127 29 29 / 20%);
   color: #fecaca;
 }
 
 /* =========================
-   View controls
+   View Controls
    ========================= */
 
 .view-button {
   position: relative;
-  height: 36px;
+  height: 32px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 0 9px;
+  gap: 5px;
+  padding: 0 7px;
   border: 1px solid transparent;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: #8f9bad;
+  font-size: 13px;
   cursor: pointer;
   transition:
-    color 0.15s ease,
-    background-color 0.15s ease,
-    border-color 0.15s ease;
+    color var(--transition-fast),
+    background-color var(--transition-fast),
+    border-color var(--transition-fast);
 }
 
 .view-button:hover {
@@ -258,23 +333,23 @@ button {
 .view-button-active::after {
   content: "";
   position: absolute;
-  left: 9px;
-  right: 9px;
+  left: 7px;
+  right: 7px;
   bottom: 1px;
   height: 2px;
   border-radius: 999px;
-  background: #60a5fa;
+  background: var(--primary-focus);
 }
 
 .view-icon,
 .view-svg-icon {
-  min-width: 18px;
+  min-width: 16px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   color: #7f8da2;
   font-family: Consolas, Monaco, monospace;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 700;
 }
 
@@ -308,11 +383,75 @@ button {
 }
 
 .view-icon-js {
-  font-size: 11px;
+  font-size: 9px;
 }
 
 .console-icon {
+  font-size: 10px;
+}
+
+/* =========================
+   Auto Run
+   ========================= */
+
+.auto-run-control {
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 4px;
+  color: var(--text-muted);
   font-size: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.auto-run-control:hover {
+  color: #dbe4ef;
+}
+
+.auto-run-control input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.auto-run-switch {
+  position: relative;
+  width: 30px;
+  height: 16px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: var(--border-default);
+  transition: background-color var(--transition-fast);
+}
+
+.auto-run-switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--text-secondary);
+  transition:
+    transform var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+.auto-run-control input:checked + .auto-run-switch {
+  background: var(--primary);
+}
+
+.auto-run-control input:checked + .auto-run-switch::after {
+  transform: translateX(14px);
+  background: #ffffff;
+}
+
+.auto-run-control input:focus-visible + .auto-run-switch {
+  outline: 2px solid var(--primary-focus);
+  outline-offset: 2px;
 }
 
 /* =========================
@@ -320,45 +459,55 @@ button {
    ========================= */
 
 .run-button {
-  height: 38px;
+  height: 34px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
-  padding: 0 15px;
-  border: 1px solid #3b82f6;
+  gap: 6px;
+  padding: 0 13px;
+  border: 1px solid var(--primary);
   border-radius: 7px;
-  background: #2563eb;
+  background: var(--primary);
   color: #ffffff;
+  font-size: 13px;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgb(37 99 235 / 20%);
+  box-shadow: 0 2px 6px rgb(12 102 228 / 18%);
   transition:
-    background-color 0.15s ease,
-    border-color 0.15s ease,
-    box-shadow 0.15s ease,
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
     transform 0.08s ease;
 }
 
 .run-button:hover {
-  background: #347cf0;
-  border-color: #60a5fa;
-  box-shadow: 0 4px 14px rgb(37 99 235 / 30%);
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+  box-shadow: 0 3px 8px rgb(12 102 228 / 22%);
 }
 
 .run-button:active {
   transform: translateY(1px);
+  background: var(--primary-active);
+  border-color: var(--primary-active);
 }
 
-/* Accessible keyboard focus */
+/* =========================
+   Keyboard Focus
+   ========================= */
 
 .toolbar-button:focus-visible,
 .icon-button:focus-visible,
 .view-button:focus-visible,
 .run-button:focus-visible,
 .panel-header button:focus-visible,
-.console-toolbar button:focus-visible {
-  outline: 2px solid #60a5fa;
+.console-toolbar button:focus-visible,
+.sidebar-toggle:focus-visible,
+.sidebar-close:focus-visible,
+.sidebar-item:focus-visible,
+.setting-select:focus-visible,
+.reset-settings-button:focus-visible {
+  outline: 2px solid var(--primary-focus);
   outline-offset: 2px;
 }
 
@@ -367,8 +516,8 @@ button {
    ========================= */
 
 .workspace {
-  height: calc(100vh - 58px);
-  background: #0f172a;
+  height: calc(100vh - var(--topbar-height));
+  background: var(--bg-app);
 }
 
 .panel-group {
@@ -376,7 +525,7 @@ button {
 }
 
 /* =========================
-   Resize handles
+   Resize Handles
    ========================= */
 
 .resize-handle {
@@ -385,7 +534,7 @@ button {
   flex-shrink: 0;
   background: #222e40;
   cursor: col-resize;
-  transition: background-color 0.15s ease;
+  transition: background-color var(--transition-fast);
 }
 
 .resize-handle::after {
@@ -396,7 +545,7 @@ button {
   left: 1px;
   width: 3px;
   background: transparent;
-  transition: background-color 0.15s ease;
+  transition: background-color var(--transition-fast);
 }
 
 .resize-handle:hover,
@@ -420,10 +569,8 @@ button {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: #111827;
+  background: var(--bg-surface);
 }
-
-/* Thin language identity line */
 
 .panel::before {
   content: "";
@@ -433,23 +580,23 @@ button {
   left: 0;
   right: 0;
   height: 2px;
-  background: #334155;
+  background: var(--border-default);
 }
 
 .panel-html::before {
-  background: #c96f50;
+  background: var(--html-accent);
 }
 
 .panel-css::before {
-  background: #438ab8;
+  background: var(--css-accent);
 }
 
 .panel-javascript::before {
-  background: #b99e3e;
+  background: var(--js-accent);
 }
 
 .panel-console::before {
-  background: #64748b;
+  background: var(--console-accent);
 }
 
 .panel-preview::before {
@@ -459,11 +606,11 @@ button {
 .panel-header {
   height: 42px;
   flex-shrink: 0;
-  padding: 2px 8px 0 11px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  background: #151f30;
+  justify-content: space-between;
+  padding: 2px 8px 0 11px;
+  background: var(--bg-panel-header);
   border-bottom: 1px solid #263246;
   color: #dfe6ef;
   font-size: 13px;
@@ -511,14 +658,14 @@ button {
   place-items: center;
   padding: 0;
   border: 1px solid transparent;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: #758398;
   cursor: pointer;
   transition:
-    background-color 0.15s ease,
-    color 0.15s ease,
-    border-color 0.15s ease;
+    background-color var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast);
 }
 
 .panel-close-button:hover {
@@ -531,11 +678,15 @@ button {
   flex: 1;
   min-height: 0;
   overflow: hidden;
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 
 .panel-content > p {
   padding: 16px;
+}
+
+.panel-hidden {
+  display: none;
 }
 
 /* =========================
@@ -558,7 +709,7 @@ button {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: #0f172a;
+  background: var(--bg-app);
   font-family: "JetBrains Mono", "Fira Code", Consolas, Monaco, monospace;
   font-size: 13px;
 }
@@ -567,22 +718,22 @@ button {
   display: flex;
   justify-content: flex-end;
   padding: 6px 8px;
-  background: #111827;
+  background: var(--bg-surface);
   border-bottom: 1px solid #263244;
 }
 
 .console-toolbar button {
-  border: 1px solid #334155;
-  border-radius: 5px;
   padding: 5px 10px;
-  background: #182235;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface-active);
   color: #dce3ec;
   cursor: pointer;
 }
 
 .console-toolbar button:hover {
   background: #223047;
-  border-color: #475569;
+  border-color: var(--border-hover);
 }
 
 .console-output {
@@ -592,7 +743,7 @@ button {
 }
 
 .console-empty {
-  color: #64748b;
+  color: var(--text-dim);
 }
 
 .console-message {
@@ -613,293 +764,16 @@ button {
 }
 
 .console-warn {
-  color: #fbbf24;
+  color: var(--warning);
 }
 
 .console-error {
-  color: #f87171;
-}
-
-.panel-hidden {
-  display: none;
+  color: var(--error);
 }
 
 /* =========================
-   Smaller desktop widths
+   Sidebar Controls
    ========================= */
-
-@media (max-width: 1250px) {
-  .topbar {
-    padding: 0 10px;
-    gap: 10px;
-  }
-
-  .topbar-actions {
-    gap: 4px;
-  }
-
-  .toolbar-divider {
-    margin: 0 2px;
-  }
-
-  .project-select {
-    width: 140px;
-  }
-
-  .view-button {
-    padding: 0 7px;
-  }
-
-  .view-button span:last-child {
-    display: none;
-  }
-
-  .view-button {
-    width: 34px;
-    justify-content: center;
-  }
-}
-/* =========================
-   Compact toolbar polish
-   ========================= */
-
-.topbar {
-  height: 52px;
-  padding: 0 14px;
-}
-
-.workspace {
-  height: calc(100vh - 52px);
-}
-
-.brand-icon {
-  width: 28px;
-  height: 28px;
-}
-
-.brand h1 {
-  font-size: 17px;
-}
-
-.topbar-actions {
-  gap: 4px;
-}
-
-.toolbar-group {
-  gap: 2px;
-}
-
-.toolbar-divider {
-  height: 20px;
-  margin: 0 4px;
-}
-
-.project-select {
-  height: 32px;
-  width: 160px;
-  font-size: 13px;
-  padding-left: 9px;
-}
-
-.toolbar-button,
-.icon-button {
-  height: 32px;
-  font-size: 13px;
-}
-
-.toolbar-button {
-  padding: 0 8px;
-}
-
-.icon-button {
-  width: 32px;
-}
-
-.view-button {
-  height: 32px;
-  gap: 5px;
-  padding: 0 7px;
-  font-size: 13px;
-}
-
-.view-icon,
-.view-svg-icon {
-  min-width: 16px;
-  font-size: 10px;
-}
-
-.view-icon-js {
-  font-size: 9px;
-}
-
-.console-icon {
-  font-size: 10px;
-}
-
-.view-button-active::after {
-  left: 7px;
-  right: 7px;
-}
-
-.run-button {
-  height: 34px;
-  padding: 0 13px;
-  gap: 6px;
-  font-size: 13px;
-
-  /* Softer LibrePen blue */
-  background: #3b82f6;
-  border-color: #4f8ff7;
-  box-shadow: 0 2px 8px rgb(59 130 246 / 15%);
-}
-
-.run-button:hover {
-  background: #4b8df8;
-  border-color: #60a5fa;
-  box-shadow: 0 3px 10px rgb(59 130 246 / 22%);
-}
-/* =========================
-   LibrePen UI final polish
-   ========================= */
-
-/* More breathing room between project actions and view tabs */
-.project-controls {
-  margin-right: 8px;
-}
-
-.toolbar-divider {
-  margin-left: 8px;
-  margin-right: 8px;
-}
-
-/* Compact project dropdown menu */
-.project-menu {
-  width: 172px;
-  padding: 4px;
-  border-radius: 7px;
-}
-
-.project-menu button {
-  height: 32px;
-  gap: 7px;
-  padding: 0 8px;
-  font-size: 12px;
-}
-
-.project-menu button svg {
-  width: 14px;
-  height: 14px;
-}
-
-.project-menu-separator {
-  margin: 4px 6px;
-}
-
-/* Destructive action stays identifiable without dominating */
-.project-menu .project-menu-delete {
-  color: #fca5a5;
-}
-
-.project-menu .project-menu-delete:hover {
-  background: rgb(127 29 29 / 20%);
-  color: #fecaca;
-}
-
-/* Deeper primary blue inspired by Atlassian's UI */
-.run-button {
-  background: #0c66e4;
-  border-color: #0c66e4;
-  box-shadow: 0 2px 6px rgb(12 102 228 / 18%);
-}
-
-.run-button:hover {
-  background: #0055cc;
-  border-color: #0055cc;
-  box-shadow: 0 3px 8px rgb(12 102 228 / 22%);
-}
-
-.run-button:active {
-  background: #09326c;
-  border-color: #09326c;
-}
-/* =========================
-   Auto Run
-   ========================= */
-
-.auto-run-control {
-  height: 32px;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 0 4px;
-  color: #94a3b8;
-  font-size: 12px;
-  cursor: pointer;
-  user-select: none;
-}
-
-.auto-run-control:hover {
-  color: #dbe4ef;
-}
-
-.auto-run-control input {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.auto-run-switch {
-  position: relative;
-  width: 30px;
-  height: 16px;
-  flex-shrink: 0;
-  border-radius: 999px;
-  background: #334155;
-  transition: background-color 0.15s ease;
-}
-
-.auto-run-switch::after {
-  content: "";
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #cbd5e1;
-  transition:
-    transform 0.15s ease,
-    background-color 0.15s ease;
-}
-
-.auto-run-control input:checked + .auto-run-switch {
-  background: #0c66e4;
-}
-
-.auto-run-control input:checked + .auto-run-switch::after {
-  transform: translateX(14px);
-  background: #ffffff;
-}
-
-.auto-run-control input:focus-visible + .auto-run-switch {
-  outline: 2px solid #60a5fa;
-  outline-offset: 2px;
-}
-
-/* =========================
-   LibrePen flat brand
-   ========================= */
-
-.brand {
-  gap: 8px;
-}
-
-.brand-mark {
-  width: 27px;
-  height: 27px;
-  flex-shrink: 0;
-  color: #0c66e4;
-}
 
 .sidebar-toggle,
 .sidebar-close {
@@ -910,28 +784,21 @@ button {
   flex-shrink: 0;
   padding: 0;
   border: 1px solid transparent;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   background: transparent;
-  color: #94a3b8;
+  color: var(--text-muted);
   cursor: pointer;
   transition:
-    background-color 0.15s ease,
-    border-color 0.15s ease,
-    color 0.15s ease;
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
 }
 
 .sidebar-toggle:hover,
 .sidebar-close:hover {
-  background: #182235;
+  background: var(--bg-surface-active);
   border-color: #29374c;
   color: #ffffff;
-}
-
-.sidebar-toggle:focus-visible,
-.sidebar-close:focus-visible,
-.sidebar-item:focus-visible {
-  outline: 2px solid #60a5fa;
-  outline-offset: 2px;
 }
 
 /* =========================
@@ -947,11 +814,11 @@ button {
 }
 
 .sidebar {
-  width: 260px;
+  width: var(--sidebar-width);
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: #0b1120;
+  background: var(--bg-topbar);
   border-right: 1px solid #293548;
   box-shadow: 14px 0 40px rgb(0 0 0 / 30%);
   animation: sidebar-enter 0.16s ease-out;
@@ -976,7 +843,7 @@ button {
   justify-content: space-between;
   flex-shrink: 0;
   padding: 0 12px 0 14px;
-  border-bottom: 1px solid #253044;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .sidebar-brand {
@@ -1001,7 +868,7 @@ button {
 }
 
 .sidebar-brand span {
-  color: #64748b;
+  color: var(--text-dim);
   font-size: 10px;
 }
 
@@ -1018,7 +885,7 @@ button {
 .sidebar-section-label {
   display: block;
   padding: 0 9px 6px;
-  color: #64748b;
+  color: var(--text-dim);
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.09em;
@@ -1033,16 +900,16 @@ button {
   gap: 10px;
   padding: 7px 9px;
   border: 1px solid transparent;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   background: transparent;
   color: #aab6c7;
   font-size: 12px;
   text-align: left;
   cursor: pointer;
   transition:
-    background-color 0.15s ease,
-    border-color 0.15s ease,
-    color 0.15s ease;
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
 }
 
 .sidebar-item > svg {
@@ -1053,7 +920,7 @@ button {
 }
 
 .sidebar-item:hover:not(:disabled) {
-  background: #151f30;
+  background: var(--bg-surface-hover);
   border-color: #26354a;
   color: #f1f5f9;
 }
@@ -1082,14 +949,11 @@ button {
 .sidebar-footer {
   flex-shrink: 0;
   padding: 9px;
-  border-top: 1px solid #253044;
+  border-top: 1px solid var(--border-subtle);
 }
 
-/* Avoid motion for users who request reduced animation */
-@media (prefers-reduced-motion: reduce) {
-  .sidebar {
-    animation: none;
-  }
+.sidebar-link {
+  text-decoration: none;
 }
 
 /* =========================
@@ -1124,8 +988,8 @@ button {
   justify-content: space-between;
   gap: 14px;
   padding: 9px;
-  border-radius: 6px;
-  color: #cbd5e1;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
 }
 
 .setting-row:hover {
@@ -1146,7 +1010,7 @@ button {
 }
 
 .setting-row small {
-  color: #64748b;
+  color: var(--text-dim);
   font-size: 9px;
 }
 
@@ -1180,7 +1044,7 @@ button {
 .setting-row input[type="range"] {
   width: 100%;
   height: 4px;
-  accent-color: #0c66e4;
+  accent-color: var(--primary);
   cursor: pointer;
 }
 
@@ -1188,32 +1052,86 @@ button {
   width: 16px;
   height: 16px;
   flex-shrink: 0;
-  accent-color: #0c66e4;
+  accent-color: var(--primary);
   cursor: pointer;
+}
+
+/* Formatting select */
+
+.setting-select {
+  min-width: 58px;
+  height: 30px;
+  flex-shrink: 0;
+  padding: 0 26px 0 9px;
+  border: 1px solid #2b394e;
+  border-radius: var(--radius-md);
+  outline: none;
+  background: var(--bg-surface);
+  color: #dbe4ef;
+  font-size: 11px;
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.setting-select:hover {
+  border-color: #43546c;
+  background: var(--bg-surface-hover);
 }
 
 .settings-footer {
   flex-shrink: 0;
   padding: 10px;
-  border-top: 1px solid #253044;
+  border-top: 1px solid var(--border-subtle);
 }
 
 .reset-settings-button {
   width: 100%;
   min-height: 34px;
   border: 1px solid #2b394e;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   background: transparent;
-  color: #94a3b8;
+  color: var(--text-muted);
   font-size: 11px;
   cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
 }
 
 .reset-settings-button:hover {
   border-color: #43546c;
-  background: #151f30;
+  background: var(--bg-surface-hover);
   color: #f1f5f9;
 }
-.sidebar-link {
-  text-decoration: none;
+
+/* =========================
+   Responsive Desktop
+   ========================= */
+
+@media (max-width: 1250px) {
+  .topbar {
+    gap: 10px;
+  }
+
+  .view-button {
+    width: 34px;
+    justify-content: center;
+  }
+
+  .view-button span:last-child {
+    display: none;
+  }
+}
+
+/* =========================
+   Reduced Motion
+   ========================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar {
+    animation: none;
+  }
 }
