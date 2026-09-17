@@ -67,7 +67,7 @@ function Preview({ html, css, javascript, runId }) {
       key={runId}
       srcDoc={srcDoc}
       title="LibrePen Preview"
-      sandbox="allow-scripts"
+      sandbox="allow-scripts allow-modals"
       className="preview-frame"
     />
   );

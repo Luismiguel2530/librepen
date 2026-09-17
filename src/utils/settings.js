@@ -5,6 +5,12 @@ export const DEFAULT_SETTINGS = {
   fontSize: 14,
   wordWrap: true,
   minimap: false,
+
+  // Formatting
+  tabSize: 2,
+  semicolons: true,
+  singleQuotes: false,
+  formatOnRun: false,
 };
 
 export const loadSettings = () => {

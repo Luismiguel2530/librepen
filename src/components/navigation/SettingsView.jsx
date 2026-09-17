@@ -102,6 +102,75 @@ function SettingsView({ settings, onChange, onReset, onBack, onClose }) {
             />
           </label>
         </div>
+
+        <div className="settings-section">
+          <span className="sidebar-section-label">Formatting</span>
+
+          <label className="setting-row">
+            <div>
+              <strong>Tab size</strong>
+              <small>Spaces used for indentation</small>
+            </div>
+
+            <select
+              className="setting-select"
+              value={settings.tabSize}
+              onChange={(event) =>
+                onChange("tabSize", Number(event.target.value))
+              }
+              aria-label="Formatting tab size"
+            >
+              <option value={2}>2</option>
+              <option value={4}>4</option>
+            </select>
+          </label>
+
+          <label className="setting-row">
+            <div>
+              <strong>Use semicolons</strong>
+              <small>Add semicolons where needed</small>
+            </div>
+
+            <input
+              className="setting-checkbox"
+              type="checkbox"
+              checked={settings.semicolons}
+              onChange={(event) => onChange("semicolons", event.target.checked)}
+            />
+          </label>
+
+          <label className="setting-row">
+            <div>
+              <strong>Single quotes</strong>
+              <small>Prefer single quotes in JavaScript</small>
+            </div>
+
+            <input
+              className="setting-checkbox"
+              type="checkbox"
+              checked={settings.singleQuotes}
+              onChange={(event) =>
+                onChange("singleQuotes", event.target.checked)
+              }
+            />
+          </label>
+
+          <label className="setting-row">
+            <div>
+              <strong>Format on Run</strong>
+              <small>Format code before running</small>
+            </div>
+
+            <input
+              className="setting-checkbox"
+              type="checkbox"
+              checked={settings.formatOnRun}
+              onChange={(event) =>
+                onChange("formatOnRun", event.target.checked)
+              }
+            />
+          </label>
+        </div>
       </div>
 
       <div className="settings-footer">

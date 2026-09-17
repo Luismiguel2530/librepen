@@ -78,6 +78,15 @@ function App() {
   // never execute an older render after panels are closed or remounted.
   const codeRef = useRef(code);
 
+  // Keep the latest settings available to callbacks registered once.
+  const settingsRef = useRef(settings);
+
+  // Keep the latest active project ID available to formatting callbacks.
+  const activeProjectIdRef = useRef(activeProjectId);
+
+  // Keep the latest Run function available to the global keyboard shortcut.
+  const runCodeRef = useRef(null);
+
   useEffect(() => {
     codeRef.current = {
       html: code.html,
@@ -85,6 +94,14 @@ function App() {
       javascript: code.javascript,
     };
   }, [code.html, code.css, code.javascript]);
+
+  useEffect(() => {
+    settingsRef.current = settings;
+  }, [settings]);
+
+  useEffect(() => {
+    activeProjectIdRef.current = activeProjectId;
+  }, [activeProjectId]);
 
   const [runningCode, setRunningCode] = useState(code);
   const [consoleMessages, setConsoleMessages] = useState([]);
@@ -205,15 +222,72 @@ function App() {
     setConsoleMessages([]);
   };
 
-  const runCode = () => {
-    const latestCode = codeRef.current;
+  const getFormattingOptions = () => {
+    const currentSettings = settingsRef.current;
+
+    return {
+      tabSize: currentSettings.tabSize,
+      semicolons: currentSettings.semicolons,
+      singleQuotes: currentSettings.singleQuotes,
+    };
+  };
+
+  const applyFormattedCode = (formattedCode) => {
+    const projectId = activeProjectIdRef.current;
+
+    setProjects((currentProjects) =>
+      currentProjects.map((project) => {
+        if (project.id !== projectId) {
+          return project;
+        }
+
+        return {
+          ...project,
+          ...formattedCode,
+          updatedAt: new Date().toISOString(),
+        };
+      }),
+    );
+
+    codeRef.current = formattedCode;
+  };
+
+  const runCode = async () => {
+    let codeToRun = codeRef.current;
+
+    if (settingsRef.current.formatOnRun) {
+      try {
+        const formattedCode = await formatProjectCode(
+          codeToRun,
+          getFormattingOptions(),
+        );
+
+        applyFormattedCode(formattedCode);
+        codeToRun = formattedCode;
+      } catch (error) {
+        console.error("Failed to format LibrePen code before running:", error);
+
+        window.alert(
+          "LibrePen could not format the code before running. Check for syntax errors and try again.",
+        );
+
+        return;
+      }
+    }
 
     setConsoleMessages([]);
-    setRunningCode({ ...latestCode });
+    setRunningCode({ ...codeToRun });
     setRunId((currentId) => currentId + 1);
   };
 
+  // Always point to the latest Run function without forcing the global
+  // keyboard listener to be registered again after every render.
+  useEffect(() => {
+    runCodeRef.current = runCode;
+  });
+
   // Auto Run waits until the user stops editing for 600 ms.
+  // It does not trigger Format on Run so formatting never interrupts typing.
   useEffect(() => {
     if (!settings.autoRun) {
       return;
@@ -241,7 +315,7 @@ function App() {
     const handleRunShortcut = (event) => {
       if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
         event.preventDefault();
-        runCode();
+        runCodeRef.current?.();
       }
     };
 
@@ -262,6 +336,14 @@ function App() {
     }
 
     setActiveProjectId(projectId);
+
+    codeRef.current = {
+      html: project.html,
+      css: project.css,
+      javascript: project.javascript,
+    };
+
+    activeProjectIdRef.current = projectId;
 
     setRunningCode({
       html: project.html,
@@ -285,6 +367,14 @@ function App() {
 
     setProjects((currentProjects) => [...currentProjects, newProject]);
     setActiveProjectId(newProject.id);
+
+    codeRef.current = {
+      html: newProject.html,
+      css: newProject.css,
+      javascript: newProject.javascript,
+    };
+
+    activeProjectIdRef.current = newProject.id;
 
     setRunningCode({
       html: newProject.html,
@@ -351,10 +441,18 @@ function App() {
       setProjects([replacementProject]);
       setActiveProjectId(replacementProject.id);
 
+      codeRef.current = {
+        html: replacementProject.html,
+        css: replacementProject.css,
+        javascript: replacementProject.javascript,
+      };
+
+      activeProjectIdRef.current = replacementProject.id;
+
       setRunningCode({
-        html: "",
-        css: "",
-        javascript: "",
+        html: replacementProject.html,
+        css: replacementProject.css,
+        javascript: replacementProject.javascript,
       });
 
       setConsoleMessages([]);
@@ -368,6 +466,14 @@ function App() {
     setProjects(remainingProjects);
     setActiveProjectId(nextProject.id);
 
+    codeRef.current = {
+      html: nextProject.html,
+      css: nextProject.css,
+      javascript: nextProject.javascript,
+    };
+
+    activeProjectIdRef.current = nextProject.id;
+
     setRunningCode({
       html: nextProject.html,
       css: nextProject.css,
@@ -379,14 +485,23 @@ function App() {
   };
 
   const updateSetting = (settingName, value) => {
-    setSettings((currentSettings) => ({
-      ...currentSettings,
-      [settingName]: value,
-    }));
+    setSettings((currentSettings) => {
+      const updatedSettings = {
+        ...currentSettings,
+        [settingName]: value,
+      };
+
+      settingsRef.current = updatedSettings;
+
+      return updatedSettings;
+    });
   };
 
   const resetSettings = () => {
-    setSettings({ ...DEFAULT_SETTINGS });
+    const defaultSettings = { ...DEFAULT_SETTINGS };
+
+    settingsRef.current = defaultSettings;
+    setSettings(defaultSettings);
   };
 
   const handleExportProject = () => {
@@ -436,6 +551,8 @@ function App() {
         javascript: importedProject.javascript,
       };
 
+      activeProjectIdRef.current = importedProject.id;
+
       setRunningCode({
         html: importedProject.html,
         css: importedProject.css,
@@ -460,23 +577,12 @@ function App() {
     try {
       const latestCode = codeRef.current;
 
-      const formattedCode = await formatProjectCode(latestCode);
-
-      setProjects((currentProjects) =>
-        currentProjects.map((project) => {
-          if (project.id !== activeProjectId) {
-            return project;
-          }
-
-          return {
-            ...project,
-            ...formattedCode,
-            updatedAt: new Date().toISOString(),
-          };
-        }),
+      const formattedCode = await formatProjectCode(
+        latestCode,
+        getFormattingOptions(),
       );
 
-      codeRef.current = formattedCode;
+      applyFormattedCode(formattedCode);
 
       setSidebarOpen(false);
       setSidebarView("menu");
