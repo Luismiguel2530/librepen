@@ -1,3 +1,5 @@
+import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
+
 import {
   CloseIcon,
   ExportIcon,
@@ -12,8 +14,21 @@ import {
 import SettingsView from "./SettingsView";
 import TrashView from "./TrashView";
 
+const FOCUSABLE_ELEMENT_SELECTOR = [
+  "a[href]",
+  "button:not([disabled])",
+  "input:not([disabled]):not([type='hidden'])",
+  "select:not([disabled])",
+  "textarea:not([disabled])",
+  "iframe",
+  "[contenteditable='true']",
+  "[tabindex]:not([tabindex='-1'])",
+].join(",");
+
 function AppSidebar({
   open,
+  triggerRef,
+  focusManagementPaused,
   view,
   settings,
   trash,
@@ -28,14 +43,115 @@ function AppSidebar({
   onRestoreProject,
   onDeleteForever,
 }) {
+  const sidebarRef = useRef(null);
+  const closeButtonRef = useRef(null);
+
+  const closeSidebar = useCallback(() => {
+    onClose();
+    onViewChange("menu");
+  }, [onClose, onViewChange]);
+
+  useLayoutEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const triggerElement = triggerRef?.current;
+
+    const animationFrame = requestAnimationFrame(() => {
+      const initialFocusElement =
+        closeButtonRef.current ?? sidebarRef.current;
+
+      initialFocusElement?.focus();
+    });
+
+    return () => {
+      cancelAnimationFrame(animationFrame);
+
+      if (
+        triggerElement?.isConnected &&
+        typeof triggerElement.focus === "function"
+      ) {
+        triggerElement.focus();
+      }
+    };
+  }, [open, triggerRef]);
+
+  useEffect(() => {
+    if (!open || focusManagementPaused) {
+      return;
+    }
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        closeSidebar();
+        return;
+      }
+
+      if (event.key !== "Tab") {
+        return;
+      }
+
+      const sidebar = sidebarRef.current;
+
+      if (!sidebar) {
+        return;
+      }
+
+      const focusableElements = Array.from(
+        sidebar.querySelectorAll(FOCUSABLE_ELEMENT_SELECTOR),
+      ).filter((element) => {
+        const styles = window.getComputedStyle(element);
+
+        return (
+          element.tabIndex >= 0 &&
+          element.getAttribute("aria-hidden") !== "true" &&
+          !element.closest("[inert]") &&
+          styles.display !== "none" &&
+          styles.visibility !== "hidden"
+        );
+      });
+
+      if (focusableElements.length === 0) {
+        event.preventDefault();
+        sidebar.focus();
+        return;
+      }
+
+      const firstFocusableElement = focusableElements[0];
+      const lastFocusableElement =
+        focusableElements[focusableElements.length - 1];
+      const activeElement = document.activeElement;
+
+      if (event.shiftKey) {
+        if (
+          activeElement === sidebar ||
+          activeElement === firstFocusableElement ||
+          !sidebar.contains(activeElement)
+        ) {
+          event.preventDefault();
+          lastFocusableElement.focus();
+        }
+      } else if (
+        activeElement === sidebar ||
+        activeElement === lastFocusableElement ||
+        !sidebar.contains(activeElement)
+      ) {
+        event.preventDefault();
+        firstFocusableElement.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [closeSidebar, focusManagementPaused, open]);
+
   if (!open) {
     return null;
   }
-
-  const closeSidebar = () => {
-    onClose();
-    onViewChange("menu");
-  };
 
   const handleOpenAbout = () => {
     closeSidebar();
@@ -51,7 +167,15 @@ function AppSidebar({
         }
       }}
     >
-      <aside className="sidebar" aria-label="LibrePen menu">
+      <aside
+        id="librepen-sidebar"
+        ref={sidebarRef}
+        className="sidebar"
+        role="dialog"
+        aria-modal="true"
+        aria-label="LibrePen menu"
+        tabIndex={-1}
+      >
         {view === "settings" ? (
           <SettingsView
             settings={settings}
@@ -81,6 +205,7 @@ function AppSidebar({
               </div>
 
               <button
+                ref={closeButtonRef}
                 type="button"
                 className="sidebar-close"
                 onClick={closeSidebar}

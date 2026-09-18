@@ -22,6 +22,8 @@ function Topbar({
   onApplyLayoutPreset,
   onResetLayout,
   onOpenSidebar,
+  sidebarOpen,
+  sidebarTriggerRef,
   onRun,
 }) {
   const projectMenuRef = useRef(null);
@@ -90,10 +92,13 @@ function Topbar({
     <header className="topbar">
       <div className="brand">
         <button
+          ref={sidebarTriggerRef}
           type="button"
           className="sidebar-toggle"
           onClick={onOpenSidebar}
           aria-label="Open LibrePen menu"
+          aria-controls="librepen-sidebar"
+          aria-expanded={sidebarOpen}
           title="Menu"
         >
           <MenuIcon />

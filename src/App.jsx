@@ -37,6 +37,7 @@ import useMediaQuery from "./hooks/useMediaQuery";
 function App() {
   const isMobile = useMediaQuery("(max-width: 767px)");
   const importFileInputRef = useRef(null);
+  const sidebarTriggerRef = useRef(null);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarView, setSidebarView] = useState("menu");
@@ -188,28 +189,6 @@ function App() {
       window.removeEventListener("message", handleMessage);
     };
   }, []);
-
-  // Close Sidebar with Escape.
-  // When the permanent-delete dialog is open, let the dialog handle Escape
-  // so the user stays inside the Trash view after cancelling.
-  useEffect(() => {
-    if (!sidebarOpen || permanentDeleteProjectId) {
-      return;
-    }
-
-    const handleKeyDown = (event) => {
-      if (event.key === "Escape") {
-        setSidebarOpen(false);
-        setSidebarView("menu");
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [sidebarOpen, permanentDeleteProjectId]);
 
   const togglePanel = (panelName) => {
     setVisiblePanels((currentPanels) => ({
@@ -817,6 +796,8 @@ function App() {
 
       <AppSidebar
         open={sidebarOpen}
+        triggerRef={sidebarTriggerRef}
+        focusManagementPaused={Boolean(permanentDeleteProject)}
         view={sidebarView}
         settings={settings}
         trash={trash}
@@ -844,6 +825,8 @@ function App() {
         onApplyLayoutPreset={applyLayoutPreset}
         onResetLayout={resetLayout}
         onOpenSidebar={() => setSidebarOpen(true)}
+        sidebarOpen={sidebarOpen}
+        sidebarTriggerRef={sidebarTriggerRef}
         onRun={runCode}
       />
 
