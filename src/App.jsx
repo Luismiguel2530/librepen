@@ -34,6 +34,11 @@ import { exportProject, parseImportedProject } from "./utils/projectTransfer";
 import { formatProjectCode } from "./utils/formatter";
 import useMediaQuery from "./hooks/useMediaQuery";
 
+const codeMatches = (firstCode, secondCode) =>
+  firstCode.html === secondCode.html &&
+  firstCode.css === secondCode.css &&
+  firstCode.javascript === secondCode.javascript;
+
 function App() {
   const isMobile = useMediaQuery("(max-width: 767px)");
   const importFileInputRef = useRef(null);
@@ -251,9 +256,17 @@ function App() {
   };
 
   const updateCode = (language, value) => {
+    const projectId = activeProjectIdRef.current;
+    const updatedCode = {
+      ...codeRef.current,
+      [language]: value,
+    };
+
+    codeRef.current = updatedCode;
+
     setProjects((currentProjects) =>
       currentProjects.map((project) => {
-        if (project.id !== activeProjectId) {
+        if (project.id !== projectId) {
           return project;
         }
 
@@ -280,12 +293,20 @@ function App() {
     };
   };
 
-  const applyFormattedCode = (formattedCode) => {
-    const projectId = activeProjectIdRef.current;
+  const applyFormattedCode = (formattedCode, projectId, sourceCode) => {
+    if (
+      activeProjectIdRef.current !== projectId ||
+      !codeMatches(codeRef.current, sourceCode)
+    ) {
+      return false;
+    }
 
     setProjects((currentProjects) =>
       currentProjects.map((project) => {
-        if (project.id !== projectId) {
+        if (
+          project.id !== projectId ||
+          !codeMatches(project, sourceCode)
+        ) {
           return project;
         }
 
@@ -298,19 +319,26 @@ function App() {
     );
 
     codeRef.current = formattedCode;
+
+    return true;
   };
 
   const runCode = async () => {
-    let codeToRun = codeRef.current;
+    const projectId = activeProjectIdRef.current;
+    let codeToRun = { ...codeRef.current };
 
     if (settingsRef.current.formatOnRun) {
       try {
+        const sourceCode = { ...codeToRun };
         const formattedCode = await formatProjectCode(
-          codeToRun,
+          sourceCode,
           getFormattingOptions(),
         );
 
-        applyFormattedCode(formattedCode);
+        if (!applyFormattedCode(formattedCode, projectId, sourceCode)) {
+          return;
+        }
+
         codeToRun = formattedCode;
       } catch (error) {
         console.error("Failed to format LibrePen code before running:", error);
@@ -728,14 +756,17 @@ function App() {
 
   const formatCode = async () => {
     try {
-      const latestCode = codeRef.current;
+      const projectId = activeProjectIdRef.current;
+      const sourceCode = { ...codeRef.current };
 
       const formattedCode = await formatProjectCode(
-        latestCode,
+        sourceCode,
         getFormattingOptions(),
       );
 
-      applyFormattedCode(formattedCode);
+      if (!applyFormattedCode(formattedCode, projectId, sourceCode)) {
+        return;
+      }
 
       setSidebarOpen(false);
       setSidebarView("menu");

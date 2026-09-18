@@ -3,6 +3,26 @@ const ACTIVE_PROJECT_STORAGE_KEY = "librepen-active-project";
 const LEGACY_CODE_STORAGE_KEY = "librepen-code";
 const TRASH_STORAGE_KEY = "librepen-trash";
 
+const isRecord = (value) =>
+  value !== null && typeof value === "object" && !Array.isArray(value);
+
+const isValidProject = (project) =>
+  isRecord(project) &&
+  typeof project.id === "string" &&
+  project.id.length > 0 &&
+  typeof project.name === "string" &&
+  typeof project.html === "string" &&
+  typeof project.css === "string" &&
+  typeof project.javascript === "string";
+
+const sanitizeProjects = (projects) => {
+  if (!Array.isArray(projects)) {
+    return [];
+  }
+
+  return projects.filter(isValidProject);
+};
+
 const createProjectId = () => {
   if (typeof crypto !== "undefined" && crypto.randomUUID) {
     return crypto.randomUUID();
@@ -33,7 +53,20 @@ const loadLegacyCode = () => {
       return null;
     }
 
-    return JSON.parse(savedCode);
+    const parsedCode = JSON.parse(savedCode);
+
+    if (!isRecord(parsedCode)) {
+      return null;
+    }
+
+    return {
+      html: typeof parsedCode.html === "string" ? parsedCode.html : "",
+      css: typeof parsedCode.css === "string" ? parsedCode.css : "",
+      javascript:
+        typeof parsedCode.javascript === "string"
+          ? parsedCode.javascript
+          : "",
+    };
   } catch (error) {
     console.error("Failed to load legacy LibrePen code:", error);
     return null;
@@ -45,7 +78,7 @@ export const loadProjects = () => {
     const savedProjects = localStorage.getItem(PROJECTS_STORAGE_KEY);
 
     if (savedProjects) {
-      const projects = JSON.parse(savedProjects);
+      const projects = sanitizeProjects(JSON.parse(savedProjects));
 
       if (Array.isArray(projects) && projects.length > 0) {
         return projects;
@@ -93,13 +126,7 @@ export const loadTrash = () => {
       return [];
     }
 
-    const trash = JSON.parse(savedTrash);
-
-    if (!Array.isArray(trash)) {
-      return [];
-    }
-
-    return trash;
+    return sanitizeProjects(JSON.parse(savedTrash));
   } catch (error) {
     console.error("Failed to load LibrePen trash:", error);
     return [];
