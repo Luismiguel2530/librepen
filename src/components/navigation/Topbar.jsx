@@ -123,6 +123,7 @@ function Topbar({
             type="button"
             className="toolbar-button new-button"
             onClick={onCreateProject}
+            aria-label="Create a new project"
             title="Create a new project"
           >
             <span className="new-button-icon" aria-hidden="true">

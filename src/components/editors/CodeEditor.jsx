@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import Editor, { useMonaco } from "@monaco-editor/react";
-import { emmetCSS, emmetHTML } from "emmet-monaco-es";
+import { initializeEditorLanguageFeatures } from "../../utils/editorLanguageFeatures";
 
 function CodeEditor({
   language,
@@ -13,7 +13,6 @@ function CodeEditor({
   minimap = false,
 }) {
   const monaco = useMonaco();
-  const emmetInitialized = useRef(false);
   const onRunRef = useRef(onRun);
   const onFormatRef = useRef(onFormat);
 
@@ -24,16 +23,13 @@ function CodeEditor({
     onRunRef.current = onRun;
   }, [onRun]);
 
-  // Initialize Emmet once Monaco is ready.
+  // Initialize global editor language features once Monaco is ready.
   useEffect(() => {
-    if (!monaco || emmetInitialized.current) {
+    if (!monaco) {
       return;
     }
 
-    emmetHTML(monaco, ["html"]);
-    emmetCSS(monaco, ["css"]);
-
-    emmetInitialized.current = true;
+    initializeEditorLanguageFeatures(monaco);
   }, [monaco]);
 
   // Register editor shortcuts directly inside Monaco.
