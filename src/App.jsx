@@ -16,8 +16,10 @@ import {
   createProject,
   loadActiveProjectId,
   loadProjects,
+  loadTrash,
   saveActiveProjectId,
   saveProjects,
+  saveTrash,
 } from "./utils/storage";
 
 import { DEFAULT_SETTINGS, loadSettings, saveSettings } from "./utils/settings";
@@ -46,10 +48,13 @@ function App() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
   const [toast, setToast] = useState(null);
+  const [permanentDeleteProjectId, setPermanentDeleteProjectId] =
+    useState(null);
 
   const [settings, setSettings] = useState(() => {
     return loadSettings();
   });
+
   const showToast = (message, type = "info") => {
     setToast({
       id: Date.now(),
@@ -70,6 +75,10 @@ function App() {
     return loadProjects();
   });
 
+  const [trash, setTrash] = useState(() => {
+    return loadTrash();
+  });
+
   const [activeProjectId, setActiveProjectId] = useState(() => {
     const savedProjects = loadProjects();
     const savedActiveProjectId = loadActiveProjectId();
@@ -87,6 +96,8 @@ function App() {
 
   const activeProject =
     projects.find((project) => project.id === activeProjectId) ?? projects[0];
+  const permanentDeleteProject =
+    trash.find((project) => project.id === permanentDeleteProjectId) ?? null;
 
   const code = {
     html: activeProject?.html ?? "",
@@ -130,6 +141,10 @@ function App() {
   useEffect(() => {
     saveProjects(projects);
   }, [projects]);
+
+  useEffect(() => {
+    saveTrash(trash);
+  }, [trash]);
 
   useEffect(() => {
     if (activeProjectId) {
@@ -466,6 +481,13 @@ function App() {
       return;
     }
 
+    const deletedProject = {
+      ...activeProject,
+      deletedAt: new Date().toISOString(),
+    };
+
+    setTrash((currentTrash) => [deletedProject, ...currentTrash]);
+
     const remainingProjects = projects.filter(
       (project) => project.id !== activeProjectId,
     );
@@ -494,6 +516,7 @@ function App() {
       setRunId((currentId) => currentId + 1);
 
       closeDeleteProjectDialog();
+      showToast("Project moved to Trash.", "success");
 
       return;
     }
@@ -521,8 +544,83 @@ function App() {
     setRunId((currentId) => currentId + 1);
 
     closeDeleteProjectDialog();
+    showToast("Project moved to Trash.", "success");
   };
 
+  const restoreProject = (projectId) => {
+    const projectToRestore = trash.find((project) => project.id === projectId);
+
+    if (!projectToRestore) {
+      showToast("The project could not be found in Trash.", "error");
+      return;
+    }
+
+    const restoredProject = { ...projectToRestore };
+
+    delete restoredProject.deletedAt;
+
+    setTrash((currentTrash) =>
+      currentTrash.filter((project) => project.id !== projectId),
+    );
+
+    setProjects((currentProjects) => [...currentProjects, restoredProject]);
+
+    setActiveProjectId(restoredProject.id);
+
+    codeRef.current = {
+      html: restoredProject.html,
+      css: restoredProject.css,
+      javascript: restoredProject.javascript,
+    };
+
+    activeProjectIdRef.current = restoredProject.id;
+
+    setRunningCode({
+      html: restoredProject.html,
+      css: restoredProject.css,
+      javascript: restoredProject.javascript,
+    });
+
+    setConsoleMessages([]);
+    setRunId((currentId) => currentId + 1);
+
+    setSidebarOpen(false);
+    setSidebarView("menu");
+
+    showToast(`"${restoredProject.name}" restored.`, "success");
+  };
+
+  const openPermanentDeleteDialog = (projectId) => {
+    const projectExists = trash.some((project) => project.id === projectId);
+
+    if (!projectExists) {
+      return;
+    }
+
+    setPermanentDeleteProjectId(projectId);
+  };
+
+  const closePermanentDeleteDialog = () => {
+    setPermanentDeleteProjectId(null);
+  };
+
+  const deleteProjectForever = () => {
+    if (!permanentDeleteProject) {
+      return;
+    }
+
+    const deletedProjectName = permanentDeleteProject.name;
+
+    setTrash((currentTrash) =>
+      currentTrash.filter(
+        (project) => project.id !== permanentDeleteProject.id,
+      ),
+    );
+
+    closePermanentDeleteDialog();
+
+    showToast(`"${deletedProjectName}" permanently deleted.`, "success");
+  };
   const updateSetting = (settingName, value) => {
     setSettings((currentSettings) => {
       const updatedSettings = {
@@ -661,17 +759,30 @@ function App() {
       {deleteDialogOpen && activeProject && (
         <ConfirmDialog
           open
-          title="Delete project?"
-          description={`"${activeProject.name}" will be permanently deleted.`}
-          confirmLabel="Delete project"
+          title="Move project to Trash?"
+          description={`"${activeProject.name}" will be moved to Trash and can be restored later.`}
+          confirmLabel="Move to Trash"
           danger
           onConfirm={deleteProject}
           onClose={closeDeleteProjectDialog}
         />
       )}
+      {permanentDeleteProject && (
+        <ConfirmDialog
+          open
+          title="Delete project forever?"
+          description={`"${permanentDeleteProject.name}" will be permanently deleted and cannot be restored.`}
+          confirmLabel="Delete forever"
+          danger
+          onConfirm={deleteProjectForever}
+          onClose={closePermanentDeleteDialog}
+        />
+      )}
+
       {aboutDialogOpen && (
         <AboutDialog open onClose={() => setAboutDialogOpen(false)} />
       )}
+
       {toast && (
         <Toast
           key={toast.id}
@@ -685,6 +796,7 @@ function App() {
         open={sidebarOpen}
         view={sidebarView}
         settings={settings}
+        trash={trash}
         onViewChange={setSidebarView}
         onSettingChange={updateSetting}
         onResetSettings={resetSettings}
@@ -692,6 +804,8 @@ function App() {
         onExportProject={handleExportProject}
         onFormatCode={formatCode}
         onOpenAbout={() => setAboutDialogOpen(true)}
+        onRestoreProject={restoreProject}
+        onDeleteForever={openPermanentDeleteDialog}
         onClose={() => setSidebarOpen(false)}
       />
 

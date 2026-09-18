@@ -10,11 +10,13 @@ import {
 } from "../icons/Icons";
 
 import SettingsView from "./SettingsView";
+import TrashView from "./TrashView";
 
 function AppSidebar({
   open,
   view,
   settings,
+  trash,
   onViewChange,
   onSettingChange,
   onResetSettings,
@@ -23,6 +25,8 @@ function AppSidebar({
   onClose,
   onFormatCode,
   onOpenAbout,
+  onRestoreProject,
+  onDeleteForever,
 }) {
   if (!open) {
     return null;
@@ -55,6 +59,14 @@ function AppSidebar({
             onReset={onResetSettings}
             onBack={() => onViewChange("menu")}
             onClose={closeSidebar}
+          />
+        ) : view === "trash" ? (
+          <TrashView
+            trash={trash}
+            onBack={() => onViewChange("menu")}
+            onClose={closeSidebar}
+            onRestoreProject={onRestoreProject}
+            onDeleteForever={onDeleteForever}
           />
         ) : (
           <>
@@ -90,6 +102,27 @@ function AppSidebar({
                 >
                   <SettingsIcon />
                   <span>Settings</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="sidebar-item"
+                  onClick={() => onViewChange("trash")}
+                >
+                  <span className="sidebar-trash-icon" aria-hidden="true">
+                    ♲
+                  </span>
+
+                  <span className="sidebar-item-text">
+                    <span>Trash</span>
+
+                    {trash.length > 0 && (
+                      <small>
+                        {trash.length}{" "}
+                        {trash.length === 1 ? "project" : "projects"}
+                      </small>
+                    )}
+                  </span>
                 </button>
               </div>
 

@@ -1,6 +1,7 @@
 const PROJECTS_STORAGE_KEY = "librepen-projects";
 const ACTIVE_PROJECT_STORAGE_KEY = "librepen-active-project";
 const LEGACY_CODE_STORAGE_KEY = "librepen-code";
+const TRASH_STORAGE_KEY = "librepen-trash";
 
 const createProjectId = () => {
   if (typeof crypto !== "undefined" && crypto.randomUUID) {
@@ -81,6 +82,35 @@ export const saveProjects = (projects) => {
     localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(projects));
   } catch (error) {
     console.error("Failed to save LibrePen projects:", error);
+  }
+};
+
+export const loadTrash = () => {
+  try {
+    const savedTrash = localStorage.getItem(TRASH_STORAGE_KEY);
+
+    if (!savedTrash) {
+      return [];
+    }
+
+    const trash = JSON.parse(savedTrash);
+
+    if (!Array.isArray(trash)) {
+      return [];
+    }
+
+    return trash;
+  } catch (error) {
+    console.error("Failed to load LibrePen trash:", error);
+    return [];
+  }
+};
+
+export const saveTrash = (trash) => {
+  try {
+    localStorage.setItem(TRASH_STORAGE_KEY, JSON.stringify(trash));
+  } catch (error) {
+    console.error("Failed to save LibrePen trash:", error);
   }
 };
 
