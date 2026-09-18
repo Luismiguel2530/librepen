@@ -24,10 +24,15 @@ function Topbar({
   onOpenSidebar,
   sidebarOpen,
   sidebarTriggerRef,
+  onPanelToggleRef,
   onRun,
 }) {
   const projectMenuRef = useRef(null);
   const layoutMenuRef = useRef(null);
+  const projectMenuTriggerRef = useRef(null);
+  const layoutMenuTriggerRef = useRef(null);
+  const projectMenuPopupRef = useRef(null);
+  const layoutMenuPopupRef = useRef(null);
 
   const [projectMenuOpen, setProjectMenuOpen] = useState(false);
   const [layoutMenuOpen, setLayoutMenuOpen] = useState(false);
@@ -50,9 +55,32 @@ function Topbar({
     };
 
     const handleKeyDown = (event) => {
-      if (event.key === "Escape") {
+      if (event.key !== "Escape") {
+        return;
+      }
+
+      if (projectMenuOpen) {
+        const focusIsInsidePopup =
+          projectMenuPopupRef.current?.contains(document.activeElement);
+
         setProjectMenuOpen(false);
+
+        if (focusIsInsidePopup) {
+          event.preventDefault();
+          projectMenuTriggerRef.current?.focus();
+        }
+      }
+
+      if (layoutMenuOpen) {
+        const focusIsInsidePopup =
+          layoutMenuPopupRef.current?.contains(document.activeElement);
+
         setLayoutMenuOpen(false);
+
+        if (focusIsInsidePopup) {
+          event.preventDefault();
+          layoutMenuTriggerRef.current?.focus();
+        }
       }
     };
 
@@ -63,29 +91,33 @@ function Topbar({
       document.removeEventListener("pointerdown", handlePointerDown);
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [layoutMenuOpen, projectMenuOpen]);
 
   const panelButtonClass = (panelName) =>
     `view-button ${visiblePanels[panelName] ? "view-button-active" : ""}`;
 
   const renameProject = () => {
     setProjectMenuOpen(false);
+    projectMenuTriggerRef.current?.focus();
     onRenameProject();
   };
 
   const deleteProject = () => {
     setProjectMenuOpen(false);
+    projectMenuTriggerRef.current?.focus();
     onDeleteProject();
   };
 
   const applyLayoutPreset = (presetName) => {
     setLayoutMenuOpen(false);
     onApplyLayoutPreset(presetName);
+    layoutMenuTriggerRef.current?.focus();
   };
 
   const resetLayout = () => {
     setLayoutMenuOpen(false);
     onResetLayout();
+    layoutMenuTriggerRef.current?.focus();
   };
 
   return (
@@ -139,6 +171,7 @@ function Topbar({
 
           <div className="project-menu-wrapper" ref={projectMenuRef}>
             <button
+              ref={projectMenuTriggerRef}
               type="button"
               className={`icon-button ${
                 projectMenuOpen ? "icon-button-active" : ""
@@ -156,7 +189,11 @@ function Topbar({
             </button>
 
             {projectMenuOpen && (
-              <div id="project-options-popup" className="project-menu">
+              <div
+                id="project-options-popup"
+                ref={projectMenuPopupRef}
+                className="project-menu"
+              >
                 <button type="button" onClick={renameProject}>
                   <EditIcon />
                   <span>Rename project</span>
@@ -181,6 +218,7 @@ function Topbar({
 
         <div className="toolbar-group view-controls">
           <button
+            ref={(element) => onPanelToggleRef("html", element)}
             type="button"
             className={`${panelButtonClass("html")} language-toggle-html`}
             aria-label="Show or hide HTML editor"
@@ -195,6 +233,7 @@ function Topbar({
           </button>
 
           <button
+            ref={(element) => onPanelToggleRef("css", element)}
             type="button"
             className={`${panelButtonClass("css")} language-toggle-css`}
             aria-label="Show or hide CSS editor"
@@ -209,6 +248,7 @@ function Topbar({
           </button>
 
           <button
+            ref={(element) => onPanelToggleRef("javascript", element)}
             type="button"
             className={`${panelButtonClass("javascript")} language-toggle-js`}
             aria-label="Show or hide JavaScript editor"
@@ -223,6 +263,7 @@ function Topbar({
           </button>
 
           <button
+            ref={(element) => onPanelToggleRef("console", element)}
             type="button"
             className={panelButtonClass("console")}
             aria-label="Show or hide Console"
@@ -237,6 +278,7 @@ function Topbar({
           </button>
 
           <button
+            ref={(element) => onPanelToggleRef("preview", element)}
             type="button"
             className={panelButtonClass("preview")}
             aria-label="Show or hide Preview"
@@ -252,6 +294,7 @@ function Topbar({
 
           <div className="layout-menu-wrapper" ref={layoutMenuRef}>
             <button
+              ref={layoutMenuTriggerRef}
               type="button"
               className={`view-button ${
                 layoutMenuOpen ? "view-button-active" : ""
@@ -272,7 +315,11 @@ function Topbar({
             </button>
 
             {layoutMenuOpen && (
-              <div id="layout-options-popup" className="layout-menu">
+              <div
+                id="layout-options-popup"
+                ref={layoutMenuPopupRef}
+                className="layout-menu"
+              >
                 <div className="layout-menu-heading">
                   <strong>Layout presets</strong>
                   <span>Choose which panels are visible</span>

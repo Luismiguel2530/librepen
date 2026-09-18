@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import "./App.css";
 
 import DesktopWorkspace from "./components/workspace/DesktopWorkspace";
@@ -38,6 +38,15 @@ function App() {
   const isMobile = useMediaQuery("(max-width: 767px)");
   const importFileInputRef = useRef(null);
   const sidebarTriggerRef = useRef(null);
+  const panelToggleRefs = useRef({});
+
+  const registerPanelToggle = useCallback((panelName, element) => {
+    panelToggleRefs.current[panelName] = element;
+  }, []);
+
+  const focusPanelToggle = useCallback((panelName) => {
+    panelToggleRefs.current[panelName]?.focus();
+  }, []);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarView, setSidebarView] = useState("menu");
@@ -827,6 +836,7 @@ function App() {
         onOpenSidebar={() => setSidebarOpen(true)}
         sidebarOpen={sidebarOpen}
         sidebarTriggerRef={sidebarTriggerRef}
+        onPanelToggleRef={registerPanelToggle}
         onRun={runCode}
       />
 
@@ -861,6 +871,7 @@ function App() {
           runningCode={runningCode}
           runId={runId}
           onTogglePanel={togglePanel}
+          onFocusPanelToggle={focusPanelToggle}
         />
       )}
     </div>

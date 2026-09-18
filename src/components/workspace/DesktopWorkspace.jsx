@@ -22,8 +22,14 @@ function DesktopWorkspace({
   runningCode,
   runId,
   onTogglePanel,
+  onFocusPanelToggle,
 }) {
   const previewPanelRef = useRef(null);
+
+  const closePanel = (panelName) => {
+    onTogglePanel(panelName);
+    onFocusPanelToggle(panelName);
+  };
 
   // Keep Preview visually collapsed when other panels change.
   useEffect(() => {
@@ -69,7 +75,7 @@ function DesktopWorkspace({
         {visiblePanels.html && (
           <>
             <ResizablePanel id="html" minSize="15%">
-              <Panel title="HTML" onClose={() => onTogglePanel("html")}>
+              <Panel title="HTML" onClose={() => closePanel("html")}>
                 <CodeEditor
                   language="html"
                   value={code.html}
@@ -89,7 +95,7 @@ function DesktopWorkspace({
         {visiblePanels.css && (
           <>
             <ResizablePanel id="css" minSize="15%">
-              <Panel title="CSS" onClose={() => onTogglePanel("css")}>
+              <Panel title="CSS" onClose={() => closePanel("css")}>
                 <CodeEditor
                   language="css"
                   value={code.css}
@@ -109,7 +115,7 @@ function DesktopWorkspace({
         {visiblePanels.javascript && (
           <>
             <ResizablePanel id="javascript" minSize="15%">
-              <Panel title="JavaScript" onClose={() => onTogglePanel("javascript")}>
+              <Panel title="JavaScript" onClose={() => closePanel("javascript")}>
                 <CodeEditor
                   language="javascript"
                   value={code.javascript}
@@ -129,7 +135,7 @@ function DesktopWorkspace({
         {visiblePanels.console && (
           <>
             <ResizablePanel id="console" minSize="15%">
-              <Panel title="Console" onClose={() => onTogglePanel("console")}>
+              <Panel title="Console" onClose={() => closePanel("console")}>
                 <ConsolePanel messages={consoleMessages} onClear={onClearConsole} />
               </Panel>
             </ResizablePanel>
@@ -146,7 +152,7 @@ function DesktopWorkspace({
             previewPanelRef.current = panel;
           }}
         >
-          <Panel title="Preview" onClose={() => onTogglePanel("preview")}>
+          <Panel title="Preview" onClose={() => closePanel("preview")}>
             <Preview
               html={runningCode.html}
               css={runningCode.css}
