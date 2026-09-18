@@ -152,7 +152,11 @@ function DesktopWorkspace({
             previewPanelRef.current = panel;
           }}
         >
-          <Panel title="Preview" onClose={() => closePanel("preview")}>
+          <Panel
+            title="Preview"
+            hidden={!visiblePanels.preview}
+            onClose={() => closePanel("preview")}
+          >
             <Preview
               html={runningCode.html}
               css={runningCode.css}

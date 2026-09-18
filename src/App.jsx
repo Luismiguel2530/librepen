@@ -74,6 +74,10 @@ function App() {
       type,
     });
   };
+
+  const closeToast = useCallback(() => {
+    setToast(null);
+  }, []);
   const [initialLayout] = useState(() => loadLayout());
 
   const [visiblePanels, setVisiblePanels] = useState(
@@ -799,7 +803,7 @@ function App() {
           key={toast.id}
           message={toast.message}
           type={toast.type}
-          onClose={() => setToast(null)}
+          onClose={closeToast}
         />
       )}
 

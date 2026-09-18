@@ -20,12 +20,16 @@ function TrashView({
   onClose,
   onRestoreProject,
   onDeleteForever,
+  backButtonRef,
+  onRestoreButtonRef,
+  onDeleteButtonRef,
 }) {
   return (
     <>
       <div className="sidebar-header">
         <div className="sidebar-view-heading">
           <button
+            ref={backButtonRef}
             type="button"
             className="sidebar-back-button"
             onClick={onBack}
@@ -73,6 +77,9 @@ function TrashView({
 
                 <div className="trash-project-actions">
                   <button
+                    ref={(element) =>
+                      onRestoreButtonRef(project.id, element)
+                    }
                     type="button"
                     className="trash-action-button"
                     onClick={() => onRestoreProject(project.id)}
@@ -81,6 +88,9 @@ function TrashView({
                   </button>
 
                   <button
+                    ref={(element) =>
+                      onDeleteButtonRef(project.id, element)
+                    }
                     type="button"
                     className="trash-action-button trash-action-danger"
                     onClick={() => onDeleteForever(project.id)}

@@ -1,11 +1,19 @@
 import { BackIcon, CloseIcon } from "../icons/Icons";
 
-function SettingsView({ settings, onChange, onReset, onBack, onClose }) {
+function SettingsView({
+  settings,
+  onChange,
+  onReset,
+  onBack,
+  onClose,
+  backButtonRef,
+}) {
   return (
     <>
       <div className="sidebar-header settings-header">
         <div className="settings-header-title">
           <button
+            ref={backButtonRef}
             type="button"
             className="sidebar-close"
             onClick={onBack}

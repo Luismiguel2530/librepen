@@ -45,6 +45,16 @@ function AppSidebar({
 }) {
   const sidebarRef = useRef(null);
   const closeButtonRef = useRef(null);
+  const settingsNavigationButtonRef = useRef(null);
+  const trashNavigationButtonRef = useRef(null);
+  const settingsBackButtonRef = useRef(null);
+  const trashBackButtonRef = useRef(null);
+  const trashRestoreButtonRefs = useRef(new Map());
+  const trashDeleteButtonRefs = useRef(new Map());
+  const previousViewRef = useRef(view);
+  const previousFocusManagementPausedRef = useRef(focusManagementPaused);
+  const pendingDeleteProjectIdRef = useRef(null);
+  const pendingDeleteIndexRef = useRef(null);
 
   const closeSidebar = useCallback(() => {
     onClose();
@@ -76,6 +86,108 @@ function AppSidebar({
       }
     };
   }, [open, triggerRef]);
+
+  useLayoutEffect(() => {
+    const previousView = previousViewRef.current;
+    previousViewRef.current = view;
+
+    if (!open || previousView === view) {
+      return;
+    }
+
+    let focusTarget;
+
+    if (view === "settings") {
+      focusTarget = settingsBackButtonRef.current;
+    } else if (view === "trash") {
+      focusTarget = trashBackButtonRef.current;
+    } else if (previousView === "settings") {
+      focusTarget = settingsNavigationButtonRef.current;
+    } else if (previousView === "trash") {
+      focusTarget = trashNavigationButtonRef.current;
+    }
+
+    const animationFrame = requestAnimationFrame(() => {
+      focusTarget?.focus();
+    });
+
+    return () => {
+      cancelAnimationFrame(animationFrame);
+    };
+  }, [open, view]);
+
+  useEffect(() => {
+    const wasPaused = previousFocusManagementPausedRef.current;
+    previousFocusManagementPausedRef.current = focusManagementPaused;
+
+    if (
+      !open ||
+      focusManagementPaused ||
+      !wasPaused ||
+      view !== "trash"
+    ) {
+      return;
+    }
+
+    const deletedProjectIndex = pendingDeleteIndexRef.current;
+    const deletedProjectId = pendingDeleteProjectIdRef.current;
+    pendingDeleteIndexRef.current = null;
+    pendingDeleteProjectIdRef.current = null;
+
+    const animationFrame = requestAnimationFrame(() => {
+      const sidebar = sidebarRef.current;
+
+      if (!sidebar || sidebar.contains(document.activeElement)) {
+        return;
+      }
+
+      const nearestProject =
+        deletedProjectIndex === null || trash.length === 0
+          ? null
+          : trash[Math.min(deletedProjectIndex, trash.length - 1)];
+      const cancelledProject =
+        deletedProjectId === null
+          ? null
+          : trash.find((project) => project.id === deletedProjectId);
+      const focusTarget =
+        (cancelledProject &&
+          trashDeleteButtonRefs.current.get(cancelledProject.id)) ||
+        (nearestProject &&
+          trashRestoreButtonRefs.current.get(nearestProject.id)) ||
+        trashBackButtonRef.current ||
+        sidebar;
+
+      focusTarget.focus();
+    });
+
+    return () => {
+      cancelAnimationFrame(animationFrame);
+    };
+  }, [focusManagementPaused, open, trash, view]);
+
+  const registerTrashRestoreButton = useCallback((projectId, element) => {
+    if (element) {
+      trashRestoreButtonRefs.current.set(projectId, element);
+    } else {
+      trashRestoreButtonRefs.current.delete(projectId);
+    }
+  }, []);
+
+  const registerTrashDeleteButton = useCallback((projectId, element) => {
+    if (element) {
+      trashDeleteButtonRefs.current.set(projectId, element);
+    } else {
+      trashDeleteButtonRefs.current.delete(projectId);
+    }
+  }, []);
+
+  const handleDeleteForever = (projectId) => {
+    pendingDeleteProjectIdRef.current = projectId;
+    pendingDeleteIndexRef.current = trash.findIndex(
+      (project) => project.id === projectId,
+    );
+    onDeleteForever(projectId);
+  };
 
   useEffect(() => {
     if (!open || focusManagementPaused) {
@@ -172,8 +284,9 @@ function AppSidebar({
         ref={sidebarRef}
         className="sidebar"
         role="dialog"
-        aria-modal="true"
+        aria-modal={focusManagementPaused ? undefined : "true"}
         aria-label="LibrePen menu"
+        inert={focusManagementPaused}
         tabIndex={-1}
       >
         {view === "settings" ? (
@@ -183,6 +296,7 @@ function AppSidebar({
             onReset={onResetSettings}
             onBack={() => onViewChange("menu")}
             onClose={closeSidebar}
+            backButtonRef={settingsBackButtonRef}
           />
         ) : view === "trash" ? (
           <TrashView
@@ -190,7 +304,10 @@ function AppSidebar({
             onBack={() => onViewChange("menu")}
             onClose={closeSidebar}
             onRestoreProject={onRestoreProject}
-            onDeleteForever={onDeleteForever}
+            onDeleteForever={handleDeleteForever}
+            backButtonRef={trashBackButtonRef}
+            onRestoreButtonRef={registerTrashRestoreButton}
+            onDeleteButtonRef={registerTrashDeleteButton}
           />
         ) : (
           <>
@@ -221,6 +338,7 @@ function AppSidebar({
                 <span className="sidebar-section-label">Workspace</span>
 
                 <button
+                  ref={settingsNavigationButtonRef}
                   type="button"
                   className="sidebar-item"
                   onClick={() => onViewChange("settings")}
@@ -230,6 +348,7 @@ function AppSidebar({
                 </button>
 
                 <button
+                  ref={trashNavigationButtonRef}
                   type="button"
                   className="sidebar-item"
                   onClick={() => onViewChange("trash")}
