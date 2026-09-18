@@ -1,9 +1,16 @@
-import { useRef } from "react";
+import { lazy, Suspense, useRef } from "react";
 
 import ConsolePanel from "../console/ConsolePanel";
-import CodeEditor from "../editors/CodeEditor";
 import Panel from "../layout/Panel";
 import Preview from "../preview/Preview";
+
+const CodeEditor = lazy(() => import("../editors/CodeEditor"));
+
+const editorFallback = (
+  <div className="editor-loading" role="status">
+    Loading editor...
+  </div>
+);
 
 const MOBILE_PANELS = [
   { id: "html", label: "HTML" },
@@ -66,16 +73,18 @@ function MobileWorkspace({
       case "css":
       case "javascript":
         return (
-          <CodeEditor
-            language={activePanel}
-            value={code[activePanel]}
-            onChange={(value) => onCodeChange(activePanel, value)}
-            onRun={onRun}
-            fontSize={settings.fontSize}
-            wordWrap={settings.wordWrap}
-            minimap={settings.minimap}
-            onFormat={onFormat}
-          />
+          <Suspense fallback={editorFallback}>
+            <CodeEditor
+              language={activePanel}
+              value={code[activePanel]}
+              onChange={(value) => onCodeChange(activePanel, value)}
+              onRun={onRun}
+              fontSize={settings.fontSize}
+              wordWrap={settings.wordWrap}
+              minimap={settings.minimap}
+              onFormat={onFormat}
+            />
+          </Suspense>
         );
       case "console":
         return (

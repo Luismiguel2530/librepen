@@ -1,11 +1,24 @@
-import * as prettier from "prettier/standalone";
+let formatterModulesPromise;
 
-import htmlPlugin from "prettier/plugins/html";
-import babelPlugin from "prettier/plugins/babel";
-import estreePlugin from "prettier/plugins/estree";
-import postcssPlugin from "prettier/plugins/postcss";
+const loadFormatterModules = () => {
+  formatterModulesPromise ??= Promise.all([
+    import("prettier/standalone"),
+    import("prettier/plugins/html"),
+    import("prettier/plugins/babel"),
+    import("prettier/plugins/estree"),
+    import("prettier/plugins/postcss"),
+  ]).then(([prettier, html, babel, estree, postcss]) => ({
+    prettier,
+    htmlPlugin: html.default,
+    babelPlugin: babel.default,
+    estreePlugin: estree.default,
+    postcssPlugin: postcss.default,
+  }));
 
-const formatLanguage = async (code, parser, plugins, options) => {
+  return formatterModulesPromise;
+};
+
+const formatLanguage = async (prettier, code, parser, plugins, options) => {
   if (!code.trim()) {
     return code;
   }
@@ -24,10 +37,19 @@ export const formatProjectCode = async (
   { html, css, javascript },
   formattingOptions,
 ) => {
+  const {
+    prettier,
+    htmlPlugin,
+    babelPlugin,
+    estreePlugin,
+    postcssPlugin,
+  } = await loadFormatterModules();
+
   const [formattedHtml, formattedCss, formattedJavaScript] = await Promise.all([
-    formatLanguage(html, "html", [htmlPlugin], formattingOptions),
-    formatLanguage(css, "css", [postcssPlugin], formattingOptions),
+    formatLanguage(prettier, html, "html", [htmlPlugin], formattingOptions),
+    formatLanguage(prettier, css, "css", [postcssPlugin], formattingOptions),
     formatLanguage(
+      prettier,
       javascript,
       "babel",
       [babelPlugin, estreePlugin],

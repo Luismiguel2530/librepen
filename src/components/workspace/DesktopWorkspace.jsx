@@ -1,10 +1,17 @@
-import { useEffect, useRef } from "react";
+import { lazy, Suspense, useEffect, useRef } from "react";
 import { Group, Panel as ResizablePanel, Separator } from "react-resizable-panels";
 
 import ConsolePanel from "../console/ConsolePanel";
-import CodeEditor from "../editors/CodeEditor";
 import Panel from "../layout/Panel";
 import Preview from "../preview/Preview";
+
+const CodeEditor = lazy(() => import("../editors/CodeEditor"));
+
+const editorFallback = (
+  <div className="editor-loading" role="status">
+    Loading editor...
+  </div>
+);
 
 function DesktopWorkspace({
   visiblePanels,
@@ -76,16 +83,18 @@ function DesktopWorkspace({
           <>
             <ResizablePanel id="html" minSize="15%">
               <Panel title="HTML" onClose={() => closePanel("html")}>
-                <CodeEditor
-                  language="html"
-                  value={code.html}
-                  onChange={(value) => onCodeChange("html", value)}
-                  onRun={onRun}
-                  fontSize={settings.fontSize}
-                  wordWrap={settings.wordWrap}
-                  minimap={settings.minimap}
-                  onFormat={onFormat}
-                />
+                <Suspense fallback={editorFallback}>
+                  <CodeEditor
+                    language="html"
+                    value={code.html}
+                    onChange={(value) => onCodeChange("html", value)}
+                    onRun={onRun}
+                    fontSize={settings.fontSize}
+                    wordWrap={settings.wordWrap}
+                    minimap={settings.minimap}
+                    onFormat={onFormat}
+                  />
+                </Suspense>
               </Panel>
             </ResizablePanel>
             <Separator className="resize-handle" />
@@ -96,16 +105,18 @@ function DesktopWorkspace({
           <>
             <ResizablePanel id="css" minSize="15%">
               <Panel title="CSS" onClose={() => closePanel("css")}>
-                <CodeEditor
-                  language="css"
-                  value={code.css}
-                  onChange={(value) => onCodeChange("css", value)}
-                  onRun={onRun}
-                  fontSize={settings.fontSize}
-                  wordWrap={settings.wordWrap}
-                  minimap={settings.minimap}
-                  onFormat={onFormat}
-                />
+                <Suspense fallback={editorFallback}>
+                  <CodeEditor
+                    language="css"
+                    value={code.css}
+                    onChange={(value) => onCodeChange("css", value)}
+                    onRun={onRun}
+                    fontSize={settings.fontSize}
+                    wordWrap={settings.wordWrap}
+                    minimap={settings.minimap}
+                    onFormat={onFormat}
+                  />
+                </Suspense>
               </Panel>
             </ResizablePanel>
             <Separator className="resize-handle" />
@@ -116,16 +127,18 @@ function DesktopWorkspace({
           <>
             <ResizablePanel id="javascript" minSize="15%">
               <Panel title="JavaScript" onClose={() => closePanel("javascript")}>
-                <CodeEditor
-                  language="javascript"
-                  value={code.javascript}
-                  onChange={(value) => onCodeChange("javascript", value)}
-                  onRun={onRun}
-                  fontSize={settings.fontSize}
-                  wordWrap={settings.wordWrap}
-                  minimap={settings.minimap}
-                  onFormat={onFormat}
-                />
+                <Suspense fallback={editorFallback}>
+                  <CodeEditor
+                    language="javascript"
+                    value={code.javascript}
+                    onChange={(value) => onCodeChange("javascript", value)}
+                    onRun={onRun}
+                    fontSize={settings.fontSize}
+                    wordWrap={settings.wordWrap}
+                    minimap={settings.minimap}
+                    onFormat={onFormat}
+                  />
+                </Suspense>
               </Panel>
             </ResizablePanel>
             <Separator className="resize-handle" />
