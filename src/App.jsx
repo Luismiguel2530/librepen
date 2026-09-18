@@ -25,6 +25,14 @@ import {
 import { DEFAULT_SETTINGS, loadSettings, saveSettings } from "./utils/settings";
 
 import {
+  DEFAULT_VISIBLE_PANELS,
+  LAYOUT_PRESETS,
+  getLayoutKey,
+  loadLayout,
+  saveLayout,
+} from "./utils/layout";
+
+import {
   Group,
   Panel as ResizablePanel,
   Separator,
@@ -62,14 +70,14 @@ function App() {
       type,
     });
   };
+  const [initialLayout] = useState(() => loadLayout());
 
-  const [visiblePanels, setVisiblePanels] = useState({
-    html: true,
-    css: true,
-    javascript: true,
-    preview: true,
-    console: false,
-  });
+  const [visiblePanels, setVisiblePanels] = useState(
+    initialLayout.visiblePanels,
+  );
+
+  const [panelLayouts, setPanelLayouts] = useState(initialLayout.panelLayouts);
+  const [layoutResetVersion, setLayoutResetVersion] = useState(0);
 
   const [projects, setProjects] = useState(() => {
     return loadProjects();
@@ -96,6 +104,7 @@ function App() {
 
   const activeProject =
     projects.find((project) => project.id === activeProjectId) ?? projects[0];
+
   const permanentDeleteProject =
     trash.find((project) => project.id === permanentDeleteProjectId) ?? null;
 
@@ -156,6 +165,13 @@ function App() {
     saveSettings(settings);
   }, [settings]);
 
+  useEffect(() => {
+    saveLayout({
+      visiblePanels,
+      panelLayouts,
+    });
+  }, [visiblePanels, panelLayouts]);
+
   // Listen for console messages coming from Preview.
   useEffect(() => {
     const handleMessage = (event) => {
@@ -211,8 +227,10 @@ function App() {
   ]);
 
   // Close Sidebar with Escape.
+  // When the permanent-delete dialog is open, let the dialog handle Escape
+  // so the user stays inside the Trash view after cancelling.
   useEffect(() => {
-    if (!sidebarOpen) {
+    if (!sidebarOpen || permanentDeleteProjectId) {
       return;
     }
 
@@ -228,13 +246,53 @@ function App() {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [sidebarOpen]);
+  }, [sidebarOpen, permanentDeleteProjectId]);
 
   const togglePanel = (panelName) => {
     setVisiblePanels((currentPanels) => ({
       ...currentPanels,
       [panelName]: !currentPanels[panelName],
     }));
+  };
+  const currentLayoutKey = getLayoutKey(visiblePanels);
+
+  const currentPanelLayout = panelLayouts[currentLayoutKey];
+
+  const handlePanelLayoutChanged = (layout) => {
+    const layoutKey = getLayoutKey(visiblePanels);
+
+    if (!layoutKey || !layout || Object.keys(layout).length === 0) {
+      return;
+    }
+
+    setPanelLayouts((currentLayouts) => ({
+      ...currentLayouts,
+      [layoutKey]: layout,
+    }));
+  };
+
+  const applyLayoutPreset = (presetName) => {
+    const preset = LAYOUT_PRESETS[presetName];
+
+    if (!preset) {
+      return;
+    }
+
+    setVisiblePanels({
+      ...preset.panels,
+    });
+  };
+
+  const resetLayout = () => {
+    setVisiblePanels({
+      ...DEFAULT_VISIBLE_PANELS,
+    });
+
+    setPanelLayouts({});
+
+    setLayoutResetVersion((currentVersion) => currentVersion + 1);
+
+    showToast("Layout reset.", "success");
   };
 
   const updateCode = (language, value) => {
@@ -621,6 +679,7 @@ function App() {
 
     showToast(`"${deletedProjectName}" permanently deleted.`, "success");
   };
+
   const updateSetting = (settingName, value) => {
     setSettings((currentSettings) => {
       const updatedSettings = {
@@ -767,6 +826,7 @@ function App() {
           onClose={closeDeleteProjectDialog}
         />
       )}
+
       {permanentDeleteProject && (
         <ConfirmDialog
           open
@@ -818,15 +878,24 @@ function App() {
         onRenameProject={openRenameProjectDialog}
         onDeleteProject={openDeleteProjectDialog}
         onTogglePanel={togglePanel}
+        onApplyLayoutPreset={applyLayoutPreset}
+        onResetLayout={resetLayout}
         onOpenSidebar={() => setSidebarOpen(true)}
         onRun={runCode}
       />
 
       <main className="workspace">
-        <Group orientation="horizontal" className="panel-group">
+        <Group
+          key={`${currentLayoutKey}-${layoutResetVersion}`}
+          id={`librepen-workspace-${currentLayoutKey}`}
+          orientation="horizontal"
+          className="panel-group"
+          defaultLayout={currentPanelLayout}
+          onLayoutChanged={handlePanelLayoutChanged}
+        >
           {visiblePanels.html && (
             <>
-              <ResizablePanel minSize="15%">
+              <ResizablePanel id="html" minSize="15%">
                 <Panel title="HTML" onClose={() => togglePanel("html")}>
                   <CodeEditor
                     language="html"
@@ -847,7 +916,7 @@ function App() {
 
           {visiblePanels.css && (
             <>
-              <ResizablePanel minSize="15%">
+              <ResizablePanel id="css" minSize="15%">
                 <Panel title="CSS" onClose={() => togglePanel("css")}>
                   <CodeEditor
                     language="css"
@@ -868,7 +937,7 @@ function App() {
 
           {visiblePanels.javascript && (
             <>
-              <ResizablePanel minSize="15%">
+              <ResizablePanel id="javascript" minSize="15%">
                 <Panel
                   title="JavaScript"
                   onClose={() => togglePanel("javascript")}
@@ -892,7 +961,7 @@ function App() {
 
           {visiblePanels.console && (
             <>
-              <ResizablePanel minSize="15%">
+              <ResizablePanel id="console" minSize="15%">
                 <Panel title="Console" onClose={() => togglePanel("console")}>
                   <ConsolePanel
                     messages={consoleMessages}
@@ -906,6 +975,7 @@ function App() {
           )}
 
           <ResizablePanel
+            id="preview"
             minSize="15%"
             collapsible
             collapsedSize="0%"

@@ -19,11 +19,16 @@ function Topbar({
   onRenameProject,
   onDeleteProject,
   onTogglePanel,
+  onApplyLayoutPreset,
+  onResetLayout,
   onOpenSidebar,
   onRun,
 }) {
   const projectMenuRef = useRef(null);
+  const layoutMenuRef = useRef(null);
+
   const [projectMenuOpen, setProjectMenuOpen] = useState(false);
+  const [layoutMenuOpen, setLayoutMenuOpen] = useState(false);
 
   useEffect(() => {
     const handlePointerDown = (event) => {
@@ -33,11 +38,19 @@ function Topbar({
       ) {
         setProjectMenuOpen(false);
       }
+
+      if (
+        layoutMenuRef.current &&
+        !layoutMenuRef.current.contains(event.target)
+      ) {
+        setLayoutMenuOpen(false);
+      }
     };
 
     const handleKeyDown = (event) => {
       if (event.key === "Escape") {
         setProjectMenuOpen(false);
+        setLayoutMenuOpen(false);
       }
     };
 
@@ -61,6 +74,16 @@ function Topbar({
   const deleteProject = () => {
     setProjectMenuOpen(false);
     onDeleteProject();
+  };
+
+  const applyLayoutPreset = (presetName) => {
+    setLayoutMenuOpen(false);
+    onApplyLayoutPreset(presetName);
+  };
+
+  const resetLayout = () => {
+    setLayoutMenuOpen(false);
+    onResetLayout();
   };
 
   return (
@@ -114,9 +137,10 @@ function Topbar({
               className={`icon-button ${
                 projectMenuOpen ? "icon-button-active" : ""
               }`}
-              onClick={() =>
-                setProjectMenuOpen((currentValue) => !currentValue)
-              }
+              onClick={() => {
+                setProjectMenuOpen((currentValue) => !currentValue);
+                setLayoutMenuOpen(false);
+              }}
               aria-label="Project options"
               aria-expanded={projectMenuOpen}
               title="Project options"
@@ -213,6 +237,95 @@ function Topbar({
             </span>
             <span>Preview</span>
           </button>
+
+          <div className="layout-menu-wrapper" ref={layoutMenuRef}>
+            <button
+              type="button"
+              className={`view-button ${
+                layoutMenuOpen ? "view-button-active" : ""
+              }`}
+              onClick={() => {
+                setLayoutMenuOpen((currentValue) => !currentValue);
+                setProjectMenuOpen(false);
+              }}
+              aria-label="Layout options"
+              aria-expanded={layoutMenuOpen}
+              title="Layout options"
+            >
+              <span className="layout-button-icon" aria-hidden="true">
+                ▦
+              </span>
+              <span>Layout</span>
+            </button>
+
+            {layoutMenuOpen && (
+              <div className="layout-menu">
+                <div className="layout-menu-heading">
+                  <strong>Layout presets</strong>
+                  <span>Choose which panels are visible</span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => applyLayoutPreset("default")}
+                >
+                  <span className="layout-preset-icon" aria-hidden="true">
+                    ▥
+                  </span>
+
+                  <span className="layout-menu-item-text">
+                    <strong>Default</strong>
+                    <small>HTML, CSS, JavaScript and Preview</small>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => applyLayoutPreset("codePreview")}
+                >
+                  <span className="layout-preset-icon" aria-hidden="true">
+                    ◫
+                  </span>
+
+                  <span className="layout-menu-item-text">
+                    <strong>Code + Preview</strong>
+                    <small>HTML, JavaScript and Preview</small>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => applyLayoutPreset("previewFocus")}
+                >
+                  <span className="layout-preset-icon" aria-hidden="true">
+                    □
+                  </span>
+
+                  <span className="layout-menu-item-text">
+                    <strong>Preview Focus</strong>
+                    <small>Show only the Preview</small>
+                  </span>
+                </button>
+
+                <div className="layout-menu-separator" />
+
+                <button
+                  type="button"
+                  className="layout-reset-button"
+                  onClick={resetLayout}
+                >
+                  <span className="layout-preset-icon" aria-hidden="true">
+                    ↺
+                  </span>
+
+                  <span className="layout-menu-item-text">
+                    <strong>Reset Layout</strong>
+                    <small>Restore the default workspace</small>
+                  </span>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="toolbar-divider" />
