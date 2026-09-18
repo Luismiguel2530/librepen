@@ -1,6 +1,12 @@
 import { useEffect, useRef } from "react";
-import Editor, { useMonaco } from "@monaco-editor/react";
+import Editor, { loader, useMonaco } from "@monaco-editor/react";
 import { initializeEditorLanguageFeatures } from "../../utils/editorLanguageFeatures";
+
+loader.config({
+  paths: {
+    vs: "https://cdn.jsdelivr.net/npm/monaco-editor@0.56.0/min/vs",
+  },
+});
 
 const EDITOR_ARIA_LABELS = {
   html: "HTML code editor",
