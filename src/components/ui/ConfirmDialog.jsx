@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import Modal from "./Modal";
 
 function ConfirmDialog({
@@ -10,15 +11,23 @@ function ConfirmDialog({
   onConfirm,
   onClose,
 }) {
+  const cancelButtonRef = useRef(null);
+
   return (
     <Modal
       open={open}
       title={title}
       description={description}
       onClose={onClose}
+      initialFocusRef={danger ? cancelButtonRef : undefined}
       footer={
         <>
-          <button type="button" className="modal-button" onClick={onClose}>
+          <button
+            ref={cancelButtonRef}
+            type="button"
+            className="modal-button"
+            onClick={onClose}
+          >
             {cancelLabel}
           </button>
 
@@ -28,7 +37,6 @@ function ConfirmDialog({
               danger ? "modal-button-danger" : "modal-button-primary"
             }`}
             onClick={onConfirm}
-            autoFocus
           >
             {confirmLabel}
           </button>
