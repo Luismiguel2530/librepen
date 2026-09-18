@@ -1,10 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
 
-import Panel from "./components/layout/Panel";
-import CodeEditor from "./components/editors/CodeEditor";
-import Preview from "./components/preview/Preview";
-import ConsolePanel from "./components/console/ConsolePanel";
+import DesktopWorkspace from "./components/workspace/DesktopWorkspace";
 import AppSidebar from "./components/navigation/AppSidebar";
 import Topbar from "./components/navigation/Topbar";
 import ProjectNameDialog from "./components/ui/ProjectNameDialog";
@@ -32,17 +29,10 @@ import {
   saveLayout,
 } from "./utils/layout";
 
-import {
-  Group,
-  Panel as ResizablePanel,
-  Separator,
-} from "react-resizable-panels";
-
 import { exportProject, parseImportedProject } from "./utils/projectTransfer";
 import { formatProjectCode } from "./utils/formatter";
 
 function App() {
-  const previewPanelRef = useRef(null);
   const importFileInputRef = useRef(null);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -194,37 +184,6 @@ function App() {
       window.removeEventListener("message", handleMessage);
     };
   }, []);
-
-  // Keep Preview visually collapsed when other panels change.
-  useEffect(() => {
-    const previewPanel = previewPanelRef.current;
-
-    if (!previewPanel) {
-      return;
-    }
-
-    const syncPreviewState = () => {
-      if (visiblePanels.preview) {
-        previewPanel.expand();
-      } else {
-        previewPanel.collapse();
-      }
-    };
-
-    syncPreviewState();
-
-    const animationFrame = requestAnimationFrame(syncPreviewState);
-
-    return () => {
-      cancelAnimationFrame(animationFrame);
-    };
-  }, [
-    visiblePanels.preview,
-    visiblePanels.html,
-    visiblePanels.css,
-    visiblePanels.javascript,
-    visiblePanels.console,
-  ]);
 
   // Close Sidebar with Escape.
   // When the permanent-delete dialog is open, let the dialog handle Escape
@@ -884,116 +843,23 @@ function App() {
         onRun={runCode}
       />
 
-      <main className="workspace">
-        <Group
-          key={`${currentLayoutKey}-${layoutResetVersion}`}
-          id={`librepen-workspace-${currentLayoutKey}`}
-          orientation="horizontal"
-          className="panel-group"
-          defaultLayout={currentPanelLayout}
-          onLayoutChanged={handlePanelLayoutChanged}
-        >
-          {visiblePanels.html && (
-            <>
-              <ResizablePanel id="html" minSize="15%">
-                <Panel title="HTML" onClose={() => togglePanel("html")}>
-                  <CodeEditor
-                    language="html"
-                    value={code.html}
-                    onChange={(value) => updateCode("html", value)}
-                    onRun={runCode}
-                    fontSize={settings.fontSize}
-                    wordWrap={settings.wordWrap}
-                    minimap={settings.minimap}
-                    onFormat={formatCode}
-                  />
-                </Panel>
-              </ResizablePanel>
-
-              <Separator className="resize-handle" />
-            </>
-          )}
-
-          {visiblePanels.css && (
-            <>
-              <ResizablePanel id="css" minSize="15%">
-                <Panel title="CSS" onClose={() => togglePanel("css")}>
-                  <CodeEditor
-                    language="css"
-                    value={code.css}
-                    onChange={(value) => updateCode("css", value)}
-                    onRun={runCode}
-                    fontSize={settings.fontSize}
-                    wordWrap={settings.wordWrap}
-                    minimap={settings.minimap}
-                    onFormat={formatCode}
-                  />
-                </Panel>
-              </ResizablePanel>
-
-              <Separator className="resize-handle" />
-            </>
-          )}
-
-          {visiblePanels.javascript && (
-            <>
-              <ResizablePanel id="javascript" minSize="15%">
-                <Panel
-                  title="JavaScript"
-                  onClose={() => togglePanel("javascript")}
-                >
-                  <CodeEditor
-                    language="javascript"
-                    value={code.javascript}
-                    onChange={(value) => updateCode("javascript", value)}
-                    onRun={runCode}
-                    fontSize={settings.fontSize}
-                    wordWrap={settings.wordWrap}
-                    minimap={settings.minimap}
-                    onFormat={formatCode}
-                  />
-                </Panel>
-              </ResizablePanel>
-
-              <Separator className="resize-handle" />
-            </>
-          )}
-
-          {visiblePanels.console && (
-            <>
-              <ResizablePanel id="console" minSize="15%">
-                <Panel title="Console" onClose={() => togglePanel("console")}>
-                  <ConsolePanel
-                    messages={consoleMessages}
-                    onClear={clearConsole}
-                  />
-                </Panel>
-              </ResizablePanel>
-
-              <Separator className="resize-handle" />
-            </>
-          )}
-
-          <ResizablePanel
-            id="preview"
-            minSize="15%"
-            collapsible
-            collapsedSize="0%"
-            panelRef={(panel) => {
-              previewPanelRef.current = panel;
-            }}
-          >
-            <Panel title="Preview" onClose={() => togglePanel("preview")}>
-              <Preview
-                html={runningCode.html}
-                css={runningCode.css}
-                javascript={runningCode.javascript}
-                runId={runId}
-              />
-            </Panel>
-          </ResizablePanel>
-        </Group>
-      </main>
+      <DesktopWorkspace
+        visiblePanels={visiblePanels}
+        currentLayoutKey={currentLayoutKey}
+        layoutResetVersion={layoutResetVersion}
+        currentPanelLayout={currentPanelLayout}
+        onLayoutChanged={handlePanelLayoutChanged}
+        code={code}
+        onCodeChange={updateCode}
+        onRun={runCode}
+        onFormat={formatCode}
+        settings={settings}
+        consoleMessages={consoleMessages}
+        onClearConsole={clearConsole}
+        runningCode={runningCode}
+        runId={runId}
+        onTogglePanel={togglePanel}
+      />
     </div>
   );
 }
