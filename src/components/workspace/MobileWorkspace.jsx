@@ -96,7 +96,11 @@ function MobileWorkspace({
           role="tabpanel"
           aria-labelledby={`mobile-tab-${activePanel}`}
         >
-          <Panel title={activePanelConfig.label} showCloseButton={false}>
+          <Panel
+            title={activePanelConfig.label}
+            showHeader={false}
+            showCloseButton={false}
+          >
             {renderActivePanel()}
           </Panel>
         </div>

@@ -60,6 +60,7 @@ function Panel({
   onClose,
   children,
   hidden = false,
+  showHeader = true,
   showCloseButton = true,
 }) {
   const config = panelConfig[title] ?? {
@@ -71,27 +72,29 @@ function Panel({
     <section
       className={`panel panel-${config.type} ${hidden ? "panel-hidden" : ""}`}
     >
-      <div className="panel-header">
-        <div className="panel-title">
-          <span className="panel-language-icon" aria-hidden="true">
-            {title === "Preview" ? <PreviewIcon /> : config.icon}
-          </span>
+      {showHeader && (
+        <div className="panel-header">
+          <div className="panel-title">
+            <span className="panel-language-icon" aria-hidden="true">
+              {title === "Preview" ? <PreviewIcon /> : config.icon}
+            </span>
 
-          <span>{title}</span>
+            <span>{title}</span>
+          </div>
+
+          {showCloseButton && (
+            <button
+              type="button"
+              onClick={onClose}
+              className="panel-close-button"
+              aria-label={`Hide ${title} panel`}
+              title={`Hide ${title}`}
+            >
+              <CloseIcon />
+            </button>
+          )}
         </div>
-
-        {showCloseButton && (
-          <button
-            type="button"
-            onClick={onClose}
-            className="panel-close-button"
-            aria-label={`Hide ${title} panel`}
-            title={`Hide ${title}`}
-          >
-            <CloseIcon />
-          </button>
-        )}
-      </div>
+      )}
 
       <div className="panel-content">{children}</div>
     </section>
