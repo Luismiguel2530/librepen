@@ -55,7 +55,13 @@ function CloseIcon() {
   );
 }
 
-function Panel({ title, onClose, children, hidden = false }) {
+function Panel({
+  title,
+  onClose,
+  children,
+  hidden = false,
+  showCloseButton = true,
+}) {
   const config = panelConfig[title] ?? {
     type: "default",
     icon: null,
@@ -74,15 +80,17 @@ function Panel({ title, onClose, children, hidden = false }) {
           <span>{title}</span>
         </div>
 
-        <button
-          type="button"
-          onClick={onClose}
-          className="panel-close-button"
-          aria-label={`Hide ${title} panel`}
-          title={`Hide ${title}`}
-        >
-          <CloseIcon />
-        </button>
+        {showCloseButton && (
+          <button
+            type="button"
+            onClick={onClose}
+            className="panel-close-button"
+            aria-label={`Hide ${title} panel`}
+            title={`Hide ${title}`}
+          >
+            <CloseIcon />
+          </button>
+        )}
       </div>
 
       <div className="panel-content">{children}</div>
