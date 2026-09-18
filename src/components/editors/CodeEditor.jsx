@@ -2,6 +2,12 @@ import { useEffect, useRef } from "react";
 import Editor, { useMonaco } from "@monaco-editor/react";
 import { initializeEditorLanguageFeatures } from "../../utils/editorLanguageFeatures";
 
+const EDITOR_ARIA_LABELS = {
+  html: "HTML code editor",
+  css: "CSS code editor",
+  javascript: "JavaScript code editor",
+};
+
 function CodeEditor({
   language,
   value,
@@ -62,6 +68,7 @@ function CodeEditor({
       onMount={handleEditorMount}
       theme="vs-dark"
       options={{
+        ariaLabel: EDITOR_ARIA_LABELS[language] ?? "Code editor",
         minimap: {
           enabled: minimap,
         },

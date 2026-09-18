@@ -144,13 +144,14 @@ function Topbar({
               }}
               aria-label="Project options"
               aria-expanded={projectMenuOpen}
+              aria-controls="project-options-popup"
               title="Project options"
             >
               <MoreIcon />
             </button>
 
             {projectMenuOpen && (
-              <div className="project-menu">
+              <div id="project-options-popup" className="project-menu">
                 <button type="button" onClick={renameProject}>
                   <EditIcon />
                   <span>Rename project</span>
@@ -177,6 +178,7 @@ function Topbar({
           <button
             type="button"
             className={`${panelButtonClass("html")} language-toggle-html`}
+            aria-label="Show or hide HTML editor"
             aria-pressed={visiblePanels.html}
             onClick={() => onTogglePanel("html")}
             title="Show/hide HTML editor"
@@ -190,6 +192,7 @@ function Topbar({
           <button
             type="button"
             className={`${panelButtonClass("css")} language-toggle-css`}
+            aria-label="Show or hide CSS editor"
             aria-pressed={visiblePanels.css}
             onClick={() => onTogglePanel("css")}
             title="Show/hide CSS editor"
@@ -203,6 +206,7 @@ function Topbar({
           <button
             type="button"
             className={`${panelButtonClass("javascript")} language-toggle-js`}
+            aria-label="Show or hide JavaScript editor"
             aria-pressed={visiblePanels.javascript}
             onClick={() => onTogglePanel("javascript")}
             title="Show/hide JavaScript editor"
@@ -216,6 +220,7 @@ function Topbar({
           <button
             type="button"
             className={panelButtonClass("console")}
+            aria-label="Show or hide Console"
             aria-pressed={visiblePanels.console}
             onClick={() => onTogglePanel("console")}
             title="Show/hide Console"
@@ -229,6 +234,7 @@ function Topbar({
           <button
             type="button"
             className={panelButtonClass("preview")}
+            aria-label="Show or hide Preview"
             aria-pressed={visiblePanels.preview}
             onClick={() => onTogglePanel("preview")}
             title="Show/hide Preview"
@@ -251,6 +257,7 @@ function Topbar({
               }}
               aria-label="Layout options"
               aria-expanded={layoutMenuOpen}
+              aria-controls="layout-options-popup"
               title="Layout options"
             >
               <span className="layout-button-icon" aria-hidden="true">
@@ -260,7 +267,7 @@ function Topbar({
             </button>
 
             {layoutMenuOpen && (
-              <div className="layout-menu">
+              <div id="layout-options-popup" className="layout-menu">
                 <div className="layout-menu-heading">
                   <strong>Layout presets</strong>
                   <span>Choose which panels are visible</span>

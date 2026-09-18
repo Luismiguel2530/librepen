@@ -5,7 +5,13 @@ function ConsolePanel({ messages, onClear }) {
         <button onClick={onClear}>Clear</button>
       </div>
 
-      <div className="console-output">
+      <div
+        className="console-output"
+        role="log"
+        aria-label="Console output"
+        aria-live="polite"
+        aria-relevant="additions"
+      >
         {messages.length === 0 ? (
           <div className="console-empty">Console output will appear here.</div>
         ) : (
@@ -14,7 +20,15 @@ function ConsolePanel({ messages, onClear }) {
               key={index}
               className={`console-message console-${message.type}`}
             >
-              <span className="console-prefix">
+              <span className="visually-hidden">
+                {message.type === "error"
+                  ? "Error: "
+                  : message.type === "warn"
+                    ? "Warning: "
+                    : "Log: "}
+              </span>
+
+              <span className="console-prefix" aria-hidden="true">
                 {message.type === "error"
                   ? "✕"
                   : message.type === "warn"

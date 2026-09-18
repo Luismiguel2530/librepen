@@ -51,7 +51,11 @@ function ProjectNameDialog({ mode, initialName = "", onClose, onSubmit }) {
       }
     >
       <form id="project-name-form" onSubmit={handleSubmit}>
+        <label className="visually-hidden" htmlFor="project-name-input">
+          Project name
+        </label>
         <input
+          id="project-name-input"
           ref={inputRef}
           className="modal-input"
           type="text"
@@ -60,7 +64,6 @@ function ProjectNameDialog({ mode, initialName = "", onClose, onSubmit }) {
           placeholder="Project name"
           autoComplete="off"
           maxLength={80}
-          aria-label="Project name"
         />
       </form>
     </Modal>
