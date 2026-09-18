@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import "./App.css";
 
 import DesktopWorkspace from "./components/workspace/DesktopWorkspace";
+import MobileWorkspace from "./components/workspace/MobileWorkspace";
 import AppSidebar from "./components/navigation/AppSidebar";
 import Topbar from "./components/navigation/Topbar";
 import ProjectNameDialog from "./components/ui/ProjectNameDialog";
@@ -31,12 +32,15 @@ import {
 
 import { exportProject, parseImportedProject } from "./utils/projectTransfer";
 import { formatProjectCode } from "./utils/formatter";
+import useMediaQuery from "./hooks/useMediaQuery";
 
 function App() {
+  const isMobile = useMediaQuery("(max-width: 767px)");
   const importFileInputRef = useRef(null);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarView, setSidebarView] = useState("menu");
+  const [mobileActivePanel, setMobileActivePanel] = useState("html");
 
   const [projectDialog, setProjectDialog] = useState({
     open: false,
@@ -843,23 +847,39 @@ function App() {
         onRun={runCode}
       />
 
-      <DesktopWorkspace
-        visiblePanels={visiblePanels}
-        currentLayoutKey={currentLayoutKey}
-        layoutResetVersion={layoutResetVersion}
-        currentPanelLayout={currentPanelLayout}
-        onLayoutChanged={handlePanelLayoutChanged}
-        code={code}
-        onCodeChange={updateCode}
-        onRun={runCode}
-        onFormat={formatCode}
-        settings={settings}
-        consoleMessages={consoleMessages}
-        onClearConsole={clearConsole}
-        runningCode={runningCode}
-        runId={runId}
-        onTogglePanel={togglePanel}
-      />
+      {isMobile ? (
+        <MobileWorkspace
+          activePanel={mobileActivePanel}
+          onActivePanelChange={setMobileActivePanel}
+          code={code}
+          onCodeChange={updateCode}
+          settings={settings}
+          onRun={runCode}
+          onFormat={formatCode}
+          consoleMessages={consoleMessages}
+          onClearConsole={clearConsole}
+          runningCode={runningCode}
+          runId={runId}
+        />
+      ) : (
+        <DesktopWorkspace
+          visiblePanels={visiblePanels}
+          currentLayoutKey={currentLayoutKey}
+          layoutResetVersion={layoutResetVersion}
+          currentPanelLayout={currentPanelLayout}
+          onLayoutChanged={handlePanelLayoutChanged}
+          code={code}
+          onCodeChange={updateCode}
+          onRun={runCode}
+          onFormat={formatCode}
+          settings={settings}
+          consoleMessages={consoleMessages}
+          onClearConsole={clearConsole}
+          runningCode={runningCode}
+          runId={runId}
+          onTogglePanel={togglePanel}
+        />
+      )}
     </div>
   );
 }
