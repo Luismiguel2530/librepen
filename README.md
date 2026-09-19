@@ -6,7 +6,7 @@ LibrePen is a free and open-source browser-based HTML, CSS, and JavaScript playg
 
 ## LibrePen in action
 
-![LibrePen workspace](docs/screenshots/librepen-workspace.png)
+![LibrePen workspace](docs/librepen-workspace.png)
 
 ## About
 
