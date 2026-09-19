@@ -4,6 +4,10 @@ LibrePen is a free and open-source browser-based HTML, CSS, and JavaScript playg
 
 **Live demo:** [librepen.vercel.app](https://librepen.vercel.app)
 
+## LibrePen in action
+
+![LibrePen workspace](docs/screenshots/librepen-workspace.png)
+
 ## About
 
 LibrePen provides a focused front-end workspace that runs entirely in the browser. No account is required: open the app, create a project, write code, and view the result immediately.
@@ -45,12 +49,12 @@ Prerequisites:
 - Node.js 20.19 or newer, or Node.js 22.12 or newer
 - npm
 
-~~~bash
+```bash
 git clone https://github.com/Luismiguel2530/librepen.git
 cd librepen
 npm install
 npm run dev
-~~~
+```
 
 Open the local URL printed by Vite.
 
@@ -63,7 +67,7 @@ Open the local URL printed by Vite.
 
 ## Project Structure
 
-~~~text
+```text
 public/                 Static public assets
 src/
   components/           Editors, workspace, navigation, preview, and UI
@@ -71,7 +75,7 @@ src/
   utils/                Storage, formatting, layout, and project utilities
   App.jsx                Application state and orchestration
   App.css                Application design system and responsive styles
-~~~
+```
 
 ## Data and Privacy
 
