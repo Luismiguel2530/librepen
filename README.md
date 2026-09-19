@@ -1,73 +1,116 @@
 # LibrePen
 
-A simple, open-source browser playground for HTML, CSS and JavaScript. No account required.
+LibrePen is a free and open-source browser-based HTML, CSS, and JavaScript playground for learning, experimenting, and building small web projects.
 
-LibrePen is a lightweight front-end code playground that lets you write, run, and experiment with HTML, CSS, and JavaScript directly in your browser.
+**Live demo:** [librepen.vercel.app](https://librepen.vercel.app)
 
-## ✨ Features
+## About
 
-- HTML, CSS, and JavaScript editing
-- Monaco Editor
-- Syntax highlighting
-- Integrated JavaScript console
-- Browser preview
-- Manual Run control
-- Resizable workspace panels
-- Show and hide individual panels
-- Editor content preserved when panels are closed
+LibrePen provides a focused front-end workspace that runs entirely in the browser. No account is required: open the app, create a project, write code, and view the result immediately.
+
+## Features
+
+- HTML, CSS, and JavaScript editors powered by Monaco Editor
+- Live Preview and integrated Console
+- Manual Run and optional Auto Run
+- Multiple local projects with rename, delete, trash, and restore workflows
+- Project import and export using the .librepen.json format
+- Code formatting with Prettier
+- HTML and CSS Emmet support
+- JavaScript snippets and IntelliSense
+- Configurable font size, tab size, word wrapping, minimap, semicolons, and quote style
+- Resizable desktop layouts with saved panel visibility and sizes
+- Single-panel mobile workspace with accessible tab navigation
+- Keyboard-accessible dialogs, navigation, menus, and workspace controls
+- Browser localStorage persistence
 - No account required
 
-## 🛠️ Tech Stack
+## Live Demo
 
-- React
+Use the deployed application at [https://librepen.vercel.app](https://librepen.vercel.app).
+
+## Tech Stack
+
+- React 19
 - Vite
-- JavaScript
-- Monaco Editor
+- Monaco Editor and @monaco-editor/react
 - react-resizable-panels
+- emmet-monaco-es
+- Prettier
 
-## 🚀 Getting Started
+## Getting Started
 
-Clone the repository:
+Prerequisites:
 
-```bash
-git clone https://github.com/Luismiguel2530/librepen
+- Node.js 20.19 or newer, or Node.js 22.12 or newer
+- npm
+
+~~~bash
+git clone https://github.com/Luismiguel2530/librepen.git
 cd librepen
-
-Install dependencies:
-
 npm install
-
-Start the development server:
-
 npm run dev
+~~~
 
-Then open the local URL shown by Vite in your browser.
+Open the local URL printed by Vite.
 
-🗺️ Roadmap
+## Available Scripts
 
-LibrePen is still under active development.
+- npm run dev — start the development server
+- npm run build — create a production build in dist
+- npm run preview — serve the production build locally
+- npm run lint — run ESLint
 
-Planned features include:
+## Project Structure
 
-Local autosave
-Multiple projects
-New/reset project
-Export projects
-Keyboard shortcuts
-Formatting tools
-Themes and editor settings
-Shareable projects
-Improved workspace customization
+~~~text
+public/                 Static public assets
+src/
+  components/           Editors, workspace, navigation, preview, and UI
+  hooks/                Reusable React hooks
+  utils/                Storage, formatting, layout, and project utilities
+  App.jsx                Application state and orchestration
+  App.css                Application design system and responsive styles
+~~~
 
-Advanced panel drag-and-drop/docking is planned for a future version.
+## Data and Privacy
 
-🤝 Contributing
+LibrePen currently stores projects, settings, and workspace preferences in the browser's localStorage. Data is not synced to a LibrePen server, and no LibrePen account is required.
 
-LibrePen is open source and contributions, suggestions, and bug reports are welcome.
+Clearing browser or site data can permanently remove locally stored projects. Use Export to create .librepen.json backups or move projects between browsers.
 
-If you find an issue or have an idea for a feature, feel free to open a GitHub Issue.
+Preview runs user-authored JavaScript inside a sandboxed iframe. As with any code playground, only run code you understand and trust.
 
-📄 License
+## Browser Support
 
-License information will be added as the project develops.
-```
+LibrePen is designed for current versions of Chrome, Edge, Firefox, and Safari. JavaScript, localStorage, iframe support, and network access to the Monaco CDN are required for the complete experience.
+
+## Roadmap
+
+### Current v1
+
+- Local-first browser playground
+- Responsive desktop and mobile workspaces
+- Accessible keyboard workflows
+- Publicly deployed application
+
+### Potential future work
+
+- Optional accounts and cloud project sync
+- Shareable project URLs
+- Public and private projects
+- Project forking
+- Project history and versioning
+- Collaboration features
+- Additional editor improvements
+- An official LibrePen QR code after deciding on a long-term custom domain
+
+No dates are promised for roadmap items.
+
+## Contributing
+
+Contributions and focused bug reports are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow.
+
+## License
+
+LibrePen is available under the [MIT License](LICENSE).

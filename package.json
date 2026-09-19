@@ -1,7 +1,14 @@
 {
   "name": "librepen",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "A free and open-source browser-based HTML, CSS, and JavaScript playground.",
+  "license": "MIT",
+  "homepage": "https://librepen.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Luismiguel2530/librepen.git"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
